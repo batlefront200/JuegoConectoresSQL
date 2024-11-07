@@ -3,10 +3,6 @@ package daos;
 
 public interface SQLiteDAO {
     public boolean saveConfig();
-    public boolean updateConfig();
-    public boolean getConfig();
-    
-    public boolean saveProgress();
-    public boolean updateProgress();
-    public boolean getProgress();
+    public boolean updateConfig(String [] datosAct);
+    public String [] getConfig();
 }
