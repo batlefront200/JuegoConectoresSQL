@@ -1,5 +1,7 @@
 package daos;
 
+import clases.Jugador;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -10,9 +12,8 @@ package daos;
  */
 public interface XmlDAO {
 
-    
     public void saveConfig();
 
-    public void getConfig();
+    public String[] getConfig();
 
 }
