@@ -2,6 +2,7 @@
 package clases;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 /* game_id: Identificador del juego.
 player_id: Identificador del jugador.
@@ -12,9 +13,9 @@ session_date: Fecha de la sesión o juego (partida). */
 
 public class Game {
     private int game_id, player_id, experience, life_level, coins;
-    private Date session_date;
+    private LocalDateTime session_date;
     
-    public Game(int player_id, int experience, int life_level, int coins, Date session_date) {
+    public Game(int player_id, int experience, int life_level, int coins, LocalDateTime session_date) {
         game_id = 0; // Modificar game id a auto increment
         this.player_id = player_id;
         this.experience = experience;
@@ -96,14 +97,14 @@ public class Game {
     /**
      * @return the session_date
      */
-    public Date getSession_date() {
+    public LocalDateTime getSession_date() {
         return session_date;
     }
     
     /**
      * @param session_date the session_date to set
      */
-    public void setSession_date(Date session_date) {
+    public void setSession_date(LocalDateTime session_date) {
         this.session_date = session_date;
     }
 }

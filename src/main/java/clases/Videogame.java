@@ -1,14 +1,14 @@
 
 package clases;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 public class Videogame {
     private int game_id, isbn, player_count, total_sessions;
     private String title;
-    private Date last_session;
+    private LocalDateTime last_session;
     
-    public Videogame(int game_id, int isbn, String title, int player_count, int total_sessions, Date last_session) {
+    public Videogame(int game_id, int isbn, String title, int player_count, int total_sessions, LocalDateTime last_session) {
         this.game_id = game_id;
         this.isbn = isbn;
         this.title = title;
@@ -90,14 +90,14 @@ public class Videogame {
     /**
      * @return the last_session
      */
-    public Date getLast_session() {
+    public LocalDateTime getLast_session() {
         return last_session;
     }
 
     /**
      * @param last_session the last_session to set
      */
-    public void setLast_session(Date last_session) {
+    public void setLast_session(LocalDateTime last_session) {
         this.last_session = last_session;
     }
     

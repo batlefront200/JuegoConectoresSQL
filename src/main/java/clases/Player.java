@@ -2,11 +2,12 @@
 package clases;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 public class Player {
     private int player_id, experience, life_level, coins, session_count;
     private String nick_name;
-    private Date last_login;
+    private LocalDateTime last_login;
     
     public Player() {
         
@@ -109,14 +110,14 @@ public class Player {
     /**
      * @return the last_login
      */
-    public Date getLast_login() {
+    public LocalDateTime getLast_login() {
         return last_login;
     }
 
     /**
      * @param last_login the last_login to set
      */
-    public void setLast_login(Date last_login) {
+    public void setLast_login(LocalDateTime last_login) {
         this.last_login = last_login;
     }
     
