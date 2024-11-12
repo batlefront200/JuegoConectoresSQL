@@ -10,11 +10,11 @@ life_level: Actualización del nivel de vida (+/-).
 coins: Actualización de las monedas acumuladas (+/-).
 session_date: Fecha de la sesión o juego (partida). */
 
-public class Games {
+public class Game {
     private int game_id, player_id, experience, life_level, coins;
     private Date session_date;
     
-    public Games(int player_id, int experience, int life_level, int coins, Date session_date) {
+    public Game(int player_id, int experience, int life_level, int coins, Date session_date) {
         game_id = 0; // Modificar game id a auto increment
         this.player_id = player_id;
         this.experience = experience;

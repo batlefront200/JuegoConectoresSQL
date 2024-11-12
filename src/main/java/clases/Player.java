@@ -3,12 +3,16 @@ package clases;
 
 import java.sql.Date;
 
-public class Players {
+public class Player {
     private int player_id, experience, life_level, coins, session_count;
     private String nick_name;
     private Date last_login;
     
-    public Players(int player_id, String nick_name, int experience, int life_level, int coins, int session_count) {
+    public Player() {
+        
+    }
+    
+    public Player(int player_id, String nick_name, int experience, int life_level, int coins, int session_count) {
         this.player_id = player_id;
         this.nick_name = nick_name;
         this.experience = experience;

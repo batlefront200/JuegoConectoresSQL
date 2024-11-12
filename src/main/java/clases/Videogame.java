@@ -3,12 +3,12 @@ package clases;
 
 import java.sql.Date;
 
-public class Videogames {
+public class Videogame {
     private int game_id, isbn, player_count, total_sessions;
     private String title;
     private Date last_session;
     
-    public Videogames(int game_id, int isbn, String title, int player_count, int total_sessions, Date last_session) {
+    public Videogame(int game_id, int isbn, String title, int player_count, int total_sessions, Date last_session) {
         this.game_id = game_id;
         this.isbn = isbn;
         this.title = title;
