@@ -23,6 +23,16 @@ public class Player {
         this.last_login = null;
     }
     
+    public Player(int player_id, String nick_name, int experience, int life_level, int coins, int session_count, LocalDateTime last_login) {
+        this.player_id = player_id;
+        this.nick_name = nick_name;
+        this.experience = experience;
+        this.life_level = life_level;
+        this.coins = coins;
+        this.session_count = 0;
+        this.last_login = last_login;
+    }
+    
     /**
      * @return the nick_name
      */

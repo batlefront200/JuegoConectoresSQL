@@ -1,9 +1,4 @@
-
 package daos;
-
-/* Implementar métodos savePlayerProgress(), updatePlayerProgress(), 
-getTopPlayers(), y getGameStats() para la gestión del progreso y estadísticas 
-de videojuegos. */
 
 import clases.Player;
 import clases.Videogame;
@@ -19,15 +14,11 @@ public class MySQL implements RemoteDAO {
     
     public MySQL(String url, String user, String password) {
         try {
-            //Class.forName("com.mysql.cj.jdbc.Driver");
             this.conexion = DriverManager.getConnection(url, user, password);
         } catch(SQLException e) {
-            System.out.println("No se pudo realizar la conexion MySQL");
+            System.out.println("No se pudo realizar la conexión MySQL");
             System.out.println(e);
-        } /*catch(ClassNotFoundException e) {
-            System.out.println("No se pudo encontrar el plugin de MySQL");
-            System.out.println(e);
-        }*/
+        }
     }
 
     @Override
@@ -62,7 +53,9 @@ public class MySQL implements RemoteDAO {
     @Override
     public ArrayList<Player> getTopPlayers(Videogame game) {
         ArrayList<Player> topPlayers = new ArrayList<>();
-        String sql = "SELECT p.player_id, p.experience, p.life_level, p.coins, p.session_count, p.last_login FROM Players p JOIN Games g ON p.player_id = g.player_id WHERE g.game_id = ? ORDER BY p.experience DESC LIMIT 10";
+        String sql = "SELECT p.player_id, p.nick_name, p.experience, p.life_level, p.coins, p.session_count, p.last_login "
+                   + "FROM Players p JOIN Games g ON p.player_id = g.player_id WHERE g.game_id = ? "
+                   + "ORDER BY p.experience DESC LIMIT 10";
         
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
             stmt.setInt(1, game.getId());
@@ -70,6 +63,7 @@ public class MySQL implements RemoteDAO {
             while (rs.next()) {
                 Player player = new Player(
                     rs.getInt("player_id"),
+                    rs.getString("nick_name"),
                     rs.getInt("experience"),
                     rs.getInt("life_level"),
                     rs.getInt("coins"),
@@ -87,7 +81,8 @@ public class MySQL implements RemoteDAO {
     @Override
     public ArrayList<Player> getGameStats(Videogame game, Player plr) {
         ArrayList<Player> gameStats = new ArrayList<>();
-        String sql = "SELECT g.experience, g.life_level, g.coins, g.session_date FROM Games g WHERE g.game_id = ? AND g.player_id = ? ORDER BY g.session_date DESC";
+        String sql = "SELECT g.experience, g.life_level, g.coins, g.session_date "
+                   + "FROM Games g WHERE g.game_id = ? AND g.player_id = ? ORDER BY g.session_date DESC";
         
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
             stmt.setInt(1, game.getId());
@@ -107,34 +102,34 @@ public class MySQL implements RemoteDAO {
         return gameStats;
     }
 
+    // Métodos adicionales aún no implementados
     @Override
     public void saveGame(Videogame game) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public Videogame getGameById(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void deleteGameById(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public Player getPlayerById(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void updatePlayer(Player plr) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void deletePlayer(Player plr) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet.");
     }
-    
 }

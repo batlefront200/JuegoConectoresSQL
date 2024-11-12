@@ -22,9 +22,9 @@ public class Factory {
 
     public RemoteDAO createRemoteDAO() {
         if (dbType.equals("MySQL")) {
-            return new MySQL("jdbc:mysql://localhost:3306/db", "root", "");
+            return new MySQL("jdbc:mysql://localhost:3306/gamesql", "root", "");
         } else if (dbType.equals("MSQL")) {
-            return new MSQL("jdbc:sqlserver://localhost:5432/db", "user", "password");
+            return new MSQL("jdbc:sqlserver://localhost:5432/gamesql", "root", "");
         }
         throw new IllegalArgumentException("Unsupported Remote DAO type");
     }
