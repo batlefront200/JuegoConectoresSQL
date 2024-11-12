@@ -1,7 +1,7 @@
 
 package implementacion;
 
-import clases.Jugador;
+import clases.Players;
 import daos.XmlDAO;
 import java.io.File;
 import java.util.ArrayList;

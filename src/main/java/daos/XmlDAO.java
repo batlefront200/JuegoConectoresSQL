@@ -1,6 +1,6 @@
 package daos;
 
-import clases.Jugador;
+import clases.Players;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license

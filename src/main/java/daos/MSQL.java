@@ -1,8 +1,8 @@
 
 package daos;
 
-import clases.Jugador;
-import clases.Videojuegos;
+import clases.Players;
+import clases.Videogames;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -21,22 +21,22 @@ public class MSQL implements RemoteDAO {
     }
 
     @Override
-    public void savePlayerProgress(Videojuegos game, Jugador plr) {
+    public void savePlayerProgress(Videogames game, Players plr) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public void updatePlayerProgress(Videojuegos game, Jugador plr) {
+    public void updatePlayerProgress(Videogames game, Players plr) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public ArrayList<Jugador> getTopPlayers(Videojuegos game) {
+    public ArrayList<Players> getTopPlayers(Videogames game) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public ArrayList<Jugador> getGameStats(Videojuegos game, Jugador plr) {
+    public ArrayList<Players> getGameStats(Videogames game, Players plr) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
