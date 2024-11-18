@@ -3,6 +3,7 @@ package clases;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 /* game_id: Identificador del juego.
 player_id: Identificador del jugador.
@@ -12,11 +13,22 @@ coins: Actualización de las monedas acumuladas (+/-).
 session_date: Fecha de la sesión o juego (partida). */
 
 public class Game {
-    private int game_id, player_id, experience, life_level, coins;
+
+    private int session_id, game_id, player_id, experience, life_level, coins;
     private LocalDateTime session_date;
     
-    public Game(int player_id, int experience, int life_level, int coins, LocalDateTime session_date) {
-        game_id = 0; // Modificar game id a auto increment
+    public Game(int game_id, int player_id, int experience, int life_level, int coins, LocalDateTime session_date) {
+        this.game_id = game_id;
+        this.player_id = player_id;
+        this.experience = experience;
+        this.life_level = life_level;
+        this.coins = coins;
+        this.session_date = session_date;
+    }
+    
+    public Game(int session_id, int game_id, int player_id, int experience, int life_level, int coins, LocalDateTime session_date) {
+        this.session_id = session_id;
+        this.game_id = game_id; // Modificar game id a auto increment
         this.player_id = player_id;
         this.experience = experience;
         this.life_level = life_level;
@@ -107,4 +119,34 @@ public class Game {
     public void setSession_date(LocalDateTime session_date) {
         this.session_date = session_date;
     }
+    
+     /**
+     * @return the session_id
+     */
+    public int getSession_id() {
+        return session_id;
+    }
+
+    /**
+     * @param session_id the session_id to set
+     */
+    public void setSession_id(int session_id) {
+        this.session_id = session_id;
+    }
+    
+    /* int session_id, int game_id, int player_id, int experience, int life_level, int coins, LocalDateTime session_date */
+    public String[] getGameDataArray() {
+        ArrayList<String> data = new ArrayList<>();
+        data.add(String.valueOf(session_id));
+        data.add(String.valueOf(game_id));
+        data.add(String.valueOf(player_id));
+        data.add(String.valueOf(experience));
+        data.add(String.valueOf(life_level));
+        data.add(String.valueOf(coins));
+        data.add(session_date != null ? session_date.toString() : "null"); // Evitar null si last_login es null
+        
+        // Convertir el ArrayList a un arreglo String[]
+        return data.toArray(new String[0]);
+    }
+    
 }

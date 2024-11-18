@@ -1,5 +1,6 @@
 package daos;
 
+import clases.Game;
 import clases.Player;
 import clases.Videogame;
 import java.sql.Connection;
@@ -102,34 +103,185 @@ public class MySQL implements RemoteDAO {
         return gameStats;
     }
 
-    // Métodos adicionales aún no implementados
+    // Métodos adicionales completados
+
     @Override
     public void saveGame(Videogame game) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        String sql = "INSERT INTO Videogames (isbn, title, player_count, total_sessions, last_session) VALUES (?, ?, ?, ?, NOW())";
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setString(1, game.getIsbn());
+            stmt.setString(2, game.getTitle());
+            stmt.setInt(3, game.getPlayer_count());
+            stmt.setInt(4, game.getTotal_sessions());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error al guardar el videojuego: " + e.getMessage());
+        }
     }
 
     @Override
     public Videogame getGameById(int id) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Videogame game = null;
+        String sql = "SELECT * FROM Videogames WHERE game_id = ?";
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                game = new Videogame(
+                    rs.getInt("game_id"),
+                    rs.getString("isbn"),
+                    rs.getString("title"),
+                    rs.getInt("player_count"),
+                    rs.getInt("total_sessions"),
+                    rs.getTimestamp("last_session").toLocalDateTime()
+                );
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener el videojuego: " + e.getMessage());
+        }
+        return game;
     }
 
     @Override
     public void deleteGameById(int id) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        String sql = "DELETE FROM Videogames WHERE game_id = ?";
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error al eliminar el videojuego: " + e.getMessage());
+        }
     }
 
     @Override
     public Player getPlayerById(int id) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Player player = null;
+        String sql = "SELECT * FROM Players WHERE player_id = ?";
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                player = new Player(
+                    rs.getInt("player_id"),
+                    rs.getString("nick_name"),
+                    rs.getInt("experience"),
+                    rs.getInt("life_level"),
+                    rs.getInt("coins"),
+                    rs.getInt("session_count"),
+                    rs.getTimestamp("last_login").toLocalDateTime()
+                );
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener el jugador: " + e.getMessage());
+        }
+        return player;
     }
 
     @Override
     public void updatePlayer(Player plr) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        String sql = "UPDATE Players SET nick_name = ?, experience = ?, life_level = ?, coins = ?, session_count = ?, last_login = ? WHERE player_id = ?";
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setString(1, plr.getNick_name());
+            stmt.setInt(2, plr.getExperience());
+            stmt.setInt(3, plr.getLife_level());
+            stmt.setInt(4, plr.getCoins());
+            stmt.setInt(5, plr.getSession_count());
+            stmt.setTimestamp(6, java.sql.Timestamp.valueOf(plr.getLast_login()));
+            stmt.setInt(7, plr.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error al actualizar el jugador: " + e.getMessage());
+        }
     }
 
     @Override
     public void deletePlayer(Player plr) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        String sql = "DELETE FROM Players WHERE player_id = ?";
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setInt(1, plr.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error al eliminar el jugador: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ArrayList<Player> getAllPlayers() {
+        ArrayList<Player> players = new ArrayList<>();
+        String sql = "SELECT * FROM Players";
+
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Player player = new Player(
+                    rs.getInt("player_id"),         // Assuming the column name is "player_id"
+                    rs.getString("nick_name"),      // Assuming the column name is "nick_name"
+                    rs.getInt("experience"),        // Assuming the column name is "experience"
+                    rs.getInt("life_level"),        // Assuming the column name is "life_level"
+                    rs.getInt("coins"),             // Assuming the column name is "coins"
+                    rs.getInt("session_count"),     // Assuming the column name is "session_count"
+                    rs.getTimestamp("last_login").toLocalDateTime()  // Assuming the column name is "last_login"
+                );
+                players.add(player);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener todos los jugadores: " + e.getMessage());
+        }
+
+        return players;
+    }
+
+    @Override
+    public void updateGame(Game game) {
+        String sql = "UPDATE Games SET player_id = ?, experience = ?, life_level = ?, coins = ?, session_date = ? WHERE game_id = ?";
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setInt(1, game.getPlayer_id());
+            stmt.setInt(2, game.getExperience());
+            stmt.setInt(3, game.getLife_level());
+            stmt.setInt(4, game.getCoins());
+            stmt.setTimestamp(5, java.sql.Timestamp.valueOf(game.getSession_date()));
+            stmt.setInt(6, game.getGame_id());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error al actualizar el juego: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ArrayList<Game> getAllGames() {
+        ArrayList<Game> games = new ArrayList<>();
+        String sql = "SELECT * FROM Games";
+
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Game game = new Game(
+                    rs.getInt("session_id"),
+                    rs.getInt("player_id"),                 // Suponiendo que la columna es "player_id"
+                    rs.getInt("experience"),                // Suponiendo que la columna es "experience"
+                    rs.getInt("life_level"),                // Suponiendo que la columna es "life_level"
+                    rs.getInt("coins"),                     // Suponiendo que la columna es "coins"
+                    rs.getTimestamp("session_date").toLocalDateTime() // Suponiendo que la columna es "session_date"
+                );
+                game.setGame_id(rs.getInt("game_id"));      // Suponiendo que la columna es "game_id"
+                games.add(game);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener todos los juegos: " + e.getMessage());
+        }
+
+        return games;
+    }
+
+    @Override
+    public void deleteVideogameById(int id) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void deletePlayerById(int id) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

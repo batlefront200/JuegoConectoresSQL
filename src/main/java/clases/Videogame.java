@@ -4,11 +4,11 @@ package clases;
 import java.time.LocalDateTime;
 
 public class Videogame {
-    private int game_id, isbn, player_count, total_sessions;
-    private String title;
+    private int game_id, player_count, total_sessions;
+    private String isbn, title;
     private LocalDateTime last_session;
     
-    public Videogame(int game_id, int isbn, String title, int player_count, int total_sessions, LocalDateTime last_session) {
+    public Videogame(int game_id, String isbn, String title, int player_count, int total_sessions, LocalDateTime last_session) {
         this.game_id = game_id;
         this.isbn = isbn;
         this.title = title;
@@ -34,14 +34,14 @@ public class Videogame {
     /**
      * @return the isbn
      */
-    public int getIsbn() {
+    public String getIsbn() {
         return isbn;
     }
 
     /**
      * @param isbn the isbn to set
      */
-    public void setIsbn(int isbn) {
+    public void setIsbn(String isbn) {
         this.isbn = isbn;
     }
 

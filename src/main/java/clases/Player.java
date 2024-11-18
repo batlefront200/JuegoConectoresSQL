@@ -3,6 +3,7 @@ package clases;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 public class Player {
     private int player_id, experience, life_level, coins, session_count;
@@ -20,7 +21,7 @@ public class Player {
         this.life_level = life_level;
         this.coins = coins;
         this.session_count = 0;
-        this.last_login = null;
+        this.last_login = LocalDateTime.now();
     }
     
     public Player(int player_id, String nick_name, int experience, int life_level, int coins, int session_count, LocalDateTime last_login) {
@@ -129,6 +130,20 @@ public class Player {
      */
     public void setLast_login(LocalDateTime last_login) {
         this.last_login = last_login;
+    }
+    
+    public String[] getPlayerDataArray() {
+        ArrayList<String> data = new ArrayList<>();
+        data.add(String.valueOf(player_id));
+        data.add(nick_name);
+        data.add(String.valueOf(experience));
+        data.add(String.valueOf(life_level));
+        data.add(String.valueOf(coins));
+        data.add(String.valueOf(session_count));
+        data.add(last_login != null ? last_login.toString() : "null"); // Evitar null si last_login es null
+        
+        // Convertir el ArrayList a un arreglo String[]
+        return data.toArray(new String[0]);
     }
     
 }

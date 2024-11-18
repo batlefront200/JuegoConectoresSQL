@@ -24,7 +24,7 @@ public class Factory {
         if (dbType.equals("MySQL")) {
             return new MySQL("jdbc:mysql://localhost:3306/gamesql", "root", "");
         } else if (dbType.equals("MSQL")) {
-            return new MSQL("jdbc:sqlserver://localhost:5432/gamesql", "root", "");
+            return new MSQL("jdbc:sqlserver://localhost\\SQLEXPRESS:1433;DatabaseName=DummyDatabase;integratedSecurity=true;");
         }
         throw new IllegalArgumentException("Unsupported Remote DAO type");
     }
