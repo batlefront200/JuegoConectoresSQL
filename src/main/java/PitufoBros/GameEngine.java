@@ -2,17 +2,36 @@ package PitufoBros;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
  * GameManager manages all parts of the game.
  */
-public class GameEngine extends GameCore 
+public class GameEngine extends GameCore implements AplicacionFrontend.StartControllerDAO
 {
+    @Override
+    public ArrayList<Object> startGame() {
+        new GameEngine().run();
+        ArrayList<Object> matchData = new ArrayList<>();
+        matchData.add(collectedStars);
+        matchData.add(collectedStars*4); // La experiencia es collected stars * 4
+        matchData.add(LocalDateTime.now());
+        System.out.println(matchData.toString());
+        return matchData;
+    }
     
     public static void main(String[] args) 
     {
-        new GameEngine().run();
+        // new GameEngine().run();
+        GameEngine myContext = new GameEngine();
+        myContext.run();
+        ArrayList<Object> matchData = new ArrayList<>();
+        matchData.add(myContext.collectedStars);
+        matchData.add(myContext.collectedStars*4); // La experiencia es collected stars * 4
+        matchData.add(LocalDateTime.now());
+        System.out.println(matchData.toString());
     }
     
     public static final float GRAVITY = 0.002f;
@@ -29,7 +48,7 @@ public class GameEngine extends GameCore
     private GameAction exit;
     private int collectedStars=0;
     private int numLives=6;
-   
+    
     public void init()
     {
         super.init();
@@ -383,6 +402,5 @@ public class GameEngine extends GameCore
             
         }
     }
-    
       
 }

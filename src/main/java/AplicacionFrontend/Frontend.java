@@ -4,6 +4,8 @@
  */
 package AplicacionFrontend;
 
+import PitufoBros.GameEngine;
+
 /**
  *
  * @author Vespertino
@@ -30,6 +32,7 @@ public class Frontend extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
+        jbPitufoBros = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -41,7 +44,6 @@ public class Frontend extends javax.swing.JFrame {
 
         jLabel2.setBackground(new java.awt.Color(204, 0, 0));
         jLabel2.setForeground(new java.awt.Color(153, 0, 0));
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/palancademando.png"))); // NOI18N
         jLabel2.setIconTextGap(0);
         jLabel2.setPreferredSize(new java.awt.Dimension(32, 32));
 
@@ -68,15 +70,30 @@ public class Frontend extends javax.swing.JFrame {
 
         jPanel2.setBackground(new java.awt.Color(153, 153, 153));
 
+        jbPitufoBros.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbPitufoBros.setText("Pitufo-Bros");
+        jbPitufoBros.setName("jbPitufoGame"); // NOI18N
+        jbPitufoBros.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbPitufoBrosActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 495, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jbPitufoBros)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 352, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jbPitufoBros, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(270, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -96,6 +113,10 @@ public class Frontend extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jbPitufoBrosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbPitufoBrosActionPerformed
+        new GameEngine().startGame();
+    }//GEN-LAST:event_jbPitufoBrosActionPerformed
 
     /**
      * @param args the command line arguments
@@ -137,5 +158,6 @@ public class Frontend extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JButton jbPitufoBros;
     // End of variables declaration//GEN-END:variables
 }
