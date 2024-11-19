@@ -2,12 +2,16 @@ package AplicacionBackend;
 
 import clases.Game;
 import clases.Player;
+import clases.Videogame;
 import daos.Factory;
 import daos.RemoteDAO;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import javax.swing.ButtonGroup;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 public class Backend extends javax.swing.JFrame {
@@ -17,7 +21,7 @@ public class Backend extends javax.swing.JFrame {
 
     public Backend() {
         initComponents();
-        controller = new Factory("MySQL").createRemoteDAO();
+        controller = new Factory("Postgres").createRemoteDAO();
 
         ButtonGroup buttonGroup = new ButtonGroup();
         buttonGroup.add(jtbGames);
@@ -30,6 +34,7 @@ public class Backend extends javax.swing.JFrame {
 
     public void updateTableContent() {
         switch (getToggledButton()) {
+
             case 1:
                 changeTableStructure(new String[]{"session_id", "game_id", "player_id", "experience", "life_level", "coins", "session_date"}, updateGameData(controller.getAllGames()));
                 break;
@@ -38,7 +43,7 @@ public class Backend extends javax.swing.JFrame {
                 changeTableStructure(new String[]{"player_id", "nick_name", "experience", "life_level", "coins", "session_count", "last_login"}, updatePlayerData(controller.getAllPlayers()));
                 break;
             case 3:
-                changeTableStructure(new String[]{"game_id", "isbn", "title", "player_count", "total_sessions", "last_session"}, new String[][]{{}});
+                changeTableStructure(new String[]{"game_id", "isbn", "title", "player_count", "total_sessions", "last_session"}, updateVideoGameData(controller.getAllVideogames()));
                 break;
             default:
                 break;
@@ -47,10 +52,16 @@ public class Backend extends javax.swing.JFrame {
 
     public int getToggledButton() {
         if (jtbGames.isSelected()) {
+            jbUpdate.setEnabled(false);
+            jbCreate.setEnabled(false);
             return 1;
         } else if (jtbPlayers.isSelected()) {
+            jbUpdate.setEnabled(true);
+            jbCreate.setEnabled(true);
             return 2;
         } else if (jtbVideogames.isSelected()) {
+            jbUpdate.setEnabled(true);
+            jbCreate.setEnabled(true);
             return 3;
         } else {
             return 0;
@@ -256,8 +267,55 @@ public class Backend extends javax.swing.JFrame {
     }//GEN-LAST:event_jbVisualizeActionPerformed
 
     private void jbCreateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbCreateActionPerformed
-        // TODO add your handling code here:
+        switch (getToggledButton()) {
+            case 2: // Jugadores
+                createPlayerDialog();
+                break;
+            case 1: // Juegos
+                createGameDialog();
+                break;
+            case 3: // Videojuegos
+                createVideogameDialog();
+                break;
+            default:
+                JOptionPane.showMessageDialog(this, "No ha seleccionado una tabla válida");
+                break;
+        }
     }//GEN-LAST:event_jbCreateActionPerformed
+    private void createPlayerDialog() {
+        JTextField tfNickName = new JTextField();
+        JTextField tfExperience = new JTextField();
+        JTextField tfLifeLevel = new JTextField();
+        JTextField tfCoins = new JTextField();
+        JTextField tfSessionCount = new JTextField();
+
+        Object[] message = {
+            "Nick Name:", tfNickName,
+            "Experience:", tfExperience,
+            "Life Level:", tfLifeLevel,
+            "Coins:", tfCoins,
+            "Session Count:", tfSessionCount
+        };
+
+        int option = JOptionPane.showConfirmDialog(this, message, "Create Player", JOptionPane.OK_CANCEL_OPTION);
+
+        if (option == JOptionPane.OK_OPTION) {
+            try {
+                String nickName = tfNickName.getText();
+                int experience = Integer.parseInt(tfExperience.getText());
+                int lifeLevel = Integer.parseInt(tfLifeLevel.getText());
+                int coins = Integer.parseInt(tfCoins.getText());
+                int sessionCount = Integer.parseInt(tfSessionCount.getText());
+
+                Player newPlayer = new Player(nickName, experience, lifeLevel, coins, sessionCount, null);
+                controller.savePlayer(newPlayer); // Asegúrate de que este método esté en tu DAO
+
+                updateTableContent(); // Actualiza la tabla con el nuevo jugador
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Por favor ingrese valores válidos.");
+            }
+        }
+    }
 
     private void jbUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbUpdateActionPerformed
         int selectedRow = mainTable.getSelectedRow();
@@ -288,7 +346,7 @@ public class Backend extends javax.swing.JFrame {
 
             break;
 
-            case 1: // Juegos
+            case 1: // Progreso
                 
                 try {
                 String session_id = (String) mainTable.getValueAt(selectedRow, 0);
@@ -307,16 +365,24 @@ public class Backend extends javax.swing.JFrame {
 
             case 3: // Videojuegos
                 try {
-                String gameIdVG = (String) mainTable.getValueAt(selectedRow, 0); // game_id
+                int gameIdVG = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 0)); // game_id
                 String isbn = (String) mainTable.getValueAt(selectedRow, 1); // isbn
                 String title = (String) mainTable.getValueAt(selectedRow, 2); // title
                 int playerCount = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 3)); // player_count
                 int totalSessions = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 4)); // total_sessions
                 String lastSession = (String) mainTable.getValueAt(selectedRow, 5); // last_session
 
+                // Convertir last_session de String a LocalDateTime (ajusta el formato según sea necesario)
+                LocalDateTime lastSessionDateTime = null;
+                if (lastSession != null && !lastSession.isEmpty()) {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); // Ajusta el patrón según el formato de tu String
+                    lastSessionDateTime = LocalDateTime.parse(lastSession, formatter);
+                }
+
                 // Actualizar el videojuego en la base de datos
-                //controller.updateVideogame(gameIdVG, isbn, title, playerCount, totalSessions, lastSession);
+                controller.updateVideogame(new Videogame(gameIdVG, isbn, title, playerCount, totalSessions, lastSessionDateTime));
             } catch (Exception e) {
+                e.printStackTrace(); // Mostrar la excepción para depuración
             }
             break;
 
@@ -339,30 +405,30 @@ public class Backend extends javax.swing.JFrame {
         switch (getToggledButton()) {
             case 2: // Jugadores
                 try {
-                    String playerId = (String) mainTable.getValueAt(selectedRow, 0); // player_id
-                    controller.deletePlayerById(Integer.parseInt(playerId));
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(this, "Error eliminando jugador");
-                }
-                break;
+                String playerId = (String) mainTable.getValueAt(selectedRow, 0); // player_id
+                controller.deletePlayerById(Integer.parseInt(playerId));
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error eliminando jugador");
+            }
+            break;
 
             case 1: // Juegos
                 try {
-                    String sessionId = (String) mainTable.getValueAt(selectedRow, 0); // session_id
-                    controller.deleteGameById(Integer.parseInt(sessionId));
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(this, "Error eliminando juego");
-                }
-                break;
+                String sessionId = (String) mainTable.getValueAt(selectedRow, 0); // session_id
+                controller.deleteGameById(Integer.parseInt(sessionId));
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error eliminando juego");
+            }
+            break;
 
             case 3: // Videojuegos
                 try {
-                    String gameId = (String) mainTable.getValueAt(selectedRow, 0); // game_id
-                    controller.deleteVideogameById(Integer.parseInt(gameId));
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(this, "Error eliminando videojuego");
-                }
-                break;
+                String gameId = (String) mainTable.getValueAt(selectedRow, 0); // game_id
+                controller.deleteVideogameById(Integer.parseInt(gameId));
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error eliminando videojuego");
+            }
+            break;
 
             default:
                 JOptionPane.showMessageDialog(this, "No ha seleccionado una tabla válida");
@@ -371,6 +437,37 @@ public class Backend extends javax.swing.JFrame {
 
         updateTableContent();
     }//GEN-LAST:event_jbDestroyActionPerformed
+
+    private void createGameDialog() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    private void createVideogameDialog() {
+        JTextField tfIsbn = new JTextField();
+        JTextField tfTitle = new JTextField();
+
+        Object[] message = {
+            "ISBN:", tfIsbn,
+            "Title:", tfTitle,};
+
+        int option = JOptionPane.showConfirmDialog(this, message, "Create Videogame", JOptionPane.OK_CANCEL_OPTION);
+
+        if (option == JOptionPane.OK_OPTION) {
+            try {
+                String isbn = tfIsbn.getText();
+                String title = tfTitle.getText();
+                int playerCount = 0;
+                int totalSessions = 0;
+                LocalDateTime lastSession = null;
+
+                Videogame newVideogame = new Videogame(isbn, title, playerCount, totalSessions, lastSession);
+                controller.saveGame(newVideogame); // Implementar este método
+                updateTableContent(); // Actualiza la tabla con el nuevo videojuego
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Por favor ingrese valores válidos.");
+            }
+        }
+    }
 
     public class PlayerTableStrategy implements TableDataHandler {
 
@@ -389,7 +486,7 @@ public class Backend extends javax.swing.JFrame {
 
         @Override
         public String[] getColumnNames() {
-            return new String[]{"session_id","game_id", "player_id", "experience", "life_level", "coins", "session_date"};
+            return new String[]{"session_id", "game_id", "player_id", "experience", "life_level", "coins", "session_date"};
         }
 
         @Override
@@ -426,16 +523,24 @@ public class Backend extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Backend.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Backend.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Backend.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Backend.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Backend.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Backend.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Backend.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Backend.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -454,7 +559,15 @@ public class Backend extends javax.swing.JFrame {
         }
         return finalList;
     }
-    
+
+    public String[][] updateVideoGameData(ArrayList<Videogame> list) {
+        String[][] finalList = new String[list.size()][];
+        for (int i = 0; i < list.size(); i++) {
+            finalList[i] = list.get(i).getVideogameDataArray();
+        }
+        return finalList;
+    }
+
     public String[][] updateGameData(ArrayList<Game> list) {
         String[][] finalList = new String[list.size()][];
         for (int i = 0; i < list.size(); i++) {
@@ -462,7 +575,7 @@ public class Backend extends javax.swing.JFrame {
         }
         return finalList;
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;

@@ -1,22 +1,31 @@
-
 package clases;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 public class Videogame {
+
     private int game_id, player_count, total_sessions;
     private String isbn, title;
     private LocalDateTime last_session;
-    
-    public Videogame(int game_id, String isbn, String title, int player_count, int total_sessions, LocalDateTime last_session) {
-        this.game_id = game_id;
+
+    public Videogame(String isbn, String title, int player_count, int total_sessions, LocalDateTime last_session) {
         this.isbn = isbn;
         this.title = title;
         this.player_count = player_count;
         this.total_sessions = total_sessions;
-        this.last_session = null;
+        this.last_session = last_session;
     }
-    
+
+    public Videogame(int gameId, String isbn, String title, int player_count, int total_sessions, LocalDateTime last_session) {
+        this.game_id = gameId;
+        this.isbn = isbn;
+        this.title = title;
+        this.player_count = player_count;
+        this.total_sessions = total_sessions;
+        this.last_session = last_session;
+    }
+
     /**
      * @return the id
      */
@@ -100,5 +109,20 @@ public class Videogame {
     public void setLast_session(LocalDateTime last_session) {
         this.last_session = last_session;
     }
-    
+
+    public String[] getVideogameDataArray() {
+        ArrayList<String> data = new ArrayList<>();
+
+        // Añadir los atributos del videojuego al ArrayList
+        data.add(String.valueOf(game_id));
+        data.add(isbn);  // ISBN como cadena
+        data.add(title);  // Título del videojuego
+        data.add(String.valueOf(player_count));  // Cantidad de jugadores como cadena
+        data.add(String.valueOf(total_sessions));  // Total de sesiones como cadena
+        data.add(last_session != null ? last_session.toString() : "null");  // Manejo de 'null' para 'last_session'
+
+        // Convertir el ArrayList a un arreglo String[]
+        return data.toArray(new String[0]);
+    }
+
 }

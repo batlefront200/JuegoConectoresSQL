@@ -23,8 +23,8 @@ public class Factory {
     public RemoteDAO createRemoteDAO() {
         if (dbType.equals("MySQL")) {
             return new MySQL("jdbc:mysql://localhost:3306/gamesql", "root", "");
-        } else if (dbType.equals("MSQL")) {
-            return new MSQL("jdbc:sqlserver://localhost\\SQLEXPRESS:1433;DatabaseName=DummyDatabase;integratedSecurity=true;");
+        } else if (dbType.equals("Postgres")) {
+            return new Postgres("jdbc:postgresql://localhost:5432/gamesql?user=postgres&password=admin");
         }
         throw new IllegalArgumentException("Unsupported Remote DAO type");
     }
