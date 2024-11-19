@@ -256,8 +256,8 @@ public class MySQL implements RemoteDAO {
         ArrayList<Game> games = new ArrayList<>();
         String sql = "SELECT * FROM Games";
 
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            ResultSet rs = stmt.executeQuery();
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            ResultSet rs = sentencia.executeQuery();
 
             while (rs.next()) {
                 Game game = new Game(
@@ -281,9 +281,9 @@ public class MySQL implements RemoteDAO {
     @Override
     public void deletePlayerById(int id) {
         String sql = "DELETE FROM players WHERE player_id = ?";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            sentencia.setInt(1, id);
+            sentencia.executeUpdate();
             System.out.println("Jugador con ID " + id + " eliminado exitosamente.");
         } catch (SQLException e) {
             System.err.println("Error al eliminar el jugador: " + e.getMessage());
@@ -293,14 +293,14 @@ public class MySQL implements RemoteDAO {
     @Override
     public void savePlayer(Player plr) {
         String sql = "INSERT INTO players ( nick_name, experience, life_level, coins, session_count, last_login) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setString(1, plr.getNick_name());
-            stmt.setInt(2, plr.getExperience());
-            stmt.setInt(3, plr.getLife_level());
-            stmt.setInt(4, plr.getCoins());
-            stmt.setInt(5, plr.getSession_count());
-            stmt.setTimestamp(6, plr.getLast_login() != null ? Timestamp.valueOf(plr.getLast_login()) : null); // Convertir LocalDateTime a Timestamp
-            stmt.executeUpdate();
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            sentencia.setString(1, plr.getNick_name());
+            sentencia.setInt(2, plr.getExperience());
+            sentencia.setInt(3, plr.getLife_level());
+            sentencia.setInt(4, plr.getCoins());
+            sentencia.setInt(5, plr.getSession_count());
+            sentencia.setTimestamp(6, plr.getLast_login() != null ? Timestamp.valueOf(plr.getLast_login()) : null); // Convertir LocalDateTime a Timestamp
+            sentencia.executeUpdate();
             System.out.println("Jugador guardado exitosamente.");
         } catch (SQLException e) {
             System.err.println("Error al guardar el jugador: " + e.getMessage());
@@ -310,13 +310,13 @@ public class MySQL implements RemoteDAO {
     @Override
     public void updateVideogame(Videogame game) {
         String sql = "UPDATE videogames SET title = ?, player_count = ?, total_sessions = ?, last_session = ? WHERE game_id = ?";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setString(1, game.getTitle());
-            stmt.setInt(2, game.getPlayer_count());
-            stmt.setInt(3, game.getTotal_sessions());
-            stmt.setTimestamp(4, game.getLast_session() != null ? Timestamp.valueOf(game.getLast_session()) : null); // Convertir LocalDateTime a Timestamp
-            stmt.setInt(5, game.getId());
-            stmt.executeUpdate();
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            sentencia.setString(1, game.getTitle());
+            sentencia.setInt(2, game.getPlayer_count());
+            sentencia.setInt(3, game.getTotal_sessions());
+            sentencia.setTimestamp(4, game.getLast_session() != null ? Timestamp.valueOf(game.getLast_session()) : null); // Convertir LocalDateTime a Timestamp
+            sentencia.setInt(5, game.getId());
+            sentencia.executeUpdate();
             System.out.println("Videojuego actualizado exitosamente.");
         } catch (SQLException e) {
             System.err.println("Error al actualizar el videojuego: " + e.getMessage());
@@ -327,15 +327,15 @@ public class MySQL implements RemoteDAO {
     public ArrayList<Videogame> getAllVideogames() {
         String sql = "SELECT * FROM videogames";
         ArrayList<Videogame> games = new ArrayList<>();
-        try (Statement stmt = conexion.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+        try (Statement sentencia = conexion.createStatement(); ResultSet datos = sentencia.executeQuery(sql)) {
 
-            while (rs.next()) {
-                int gameId = rs.getInt("game_id");
-                String isbn = rs.getString("isbn");
-                String title = rs.getString("title");
-                int playerCount = rs.getInt("player_count");
-                int totalSessions = rs.getInt("total_sessions");
-                Timestamp lastSessionTimestamp = rs.getTimestamp("last_session");
+            while (datos.next()) {
+                int gameId = datos.getInt("game_id");
+                String isbn = datos.getString("isbn");
+                String title = datos.getString("title");
+                int playerCount = datos.getInt("player_count");
+                int totalSessions = datos.getInt("total_sessions");
+                Timestamp lastSessionTimestamp = datos.getTimestamp("last_session");
                 LocalDateTime lastSession = (lastSessionTimestamp != null) ? lastSessionTimestamp.toLocalDateTime() : null;
                 games.add(new Videogame(gameId, isbn, title, playerCount, totalSessions, lastSession));
             }
@@ -348,9 +348,9 @@ public class MySQL implements RemoteDAO {
     @Override
     public void deleteVideogameById(int id) {
         String sql = "DELETE FROM Videogames WHERE game_id = ?";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, id);  // Establece el ID del videojuego que quieres eliminar
-            int rowsAffected = stmt.executeUpdate();
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            sentencia.setInt(1, id);  // Establece el ID del videojuego que quieres eliminar
+            int rowsAffected = sentencia.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("Videojuego eliminado con éxito.");
             } else {

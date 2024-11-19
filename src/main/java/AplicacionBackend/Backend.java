@@ -5,6 +5,7 @@ import clases.Player;
 import clases.Videogame;
 import daos.Factory;
 import daos.RemoteDAO;
+import implementacion.XmlImpl;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -21,7 +22,14 @@ public class Backend extends javax.swing.JFrame {
 
     public Backend() {
         initComponents();
-        controller = new Factory("Postgres").createRemoteDAO();
+        XmlImpl config = new XmlImpl();
+        String puerto = config.getConfig()[1];
+        if(puerto.equals("5432")){
+            controller = new Factory("Postgres").createRemoteDAO();
+        }else{
+            controller = new Factory("MySQL").createRemoteDAO();
+        }
+        
 
         ButtonGroup buttonGroup = new ButtonGroup();
         buttonGroup.add(jtbGames);
@@ -60,7 +68,7 @@ public class Backend extends javax.swing.JFrame {
             jbCreate.setEnabled(true);
             return 2;
         } else if (jtbVideogames.isSelected()) {
-            jbUpdate.setEnabled(true);
+                        jbUpdate.setEnabled(true);
             jbCreate.setEnabled(true);
             return 3;
         } else {

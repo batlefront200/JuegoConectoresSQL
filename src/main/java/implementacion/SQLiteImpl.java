@@ -17,7 +17,7 @@ public class SQLiteImpl implements SQLiteDAO {
     // Cargar el driver
 
     // Establecer conexi�n
-    private String url = "jdbc:sqlite:D:\\Kevin\\Entornos\\UD2\\sqlite-tools-win-x64-3460100\\datosLocales.db";		//
+    private String url = "jdbc:sqlite:.\\datosLocales\\datosLocales.db";		//
 
     @Override
     public boolean saveConfig() {

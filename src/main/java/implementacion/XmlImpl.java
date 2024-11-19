@@ -131,7 +131,7 @@ public class XmlImpl implements XmlDAO {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(file);
-            NodeList nodeList = document.getElementsByTagName("jugador");
+            NodeList nodeList = document.getElementsByTagName("configuration");
 
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node node = nodeList.item(i);
