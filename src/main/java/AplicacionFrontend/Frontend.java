@@ -15,6 +15,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -35,7 +37,7 @@ public class Frontend extends javax.swing.JFrame {
      * Creates new form Frontend
      */
     public Frontend() {
-         localController = new Factory("SQLite").createSQLiteDAO();
+        localController = new Factory("SQLite").createSQLiteDAO();
 
         XmlImpl config = new XmlImpl();
         String puerto = config.getConfig()[1];
@@ -44,109 +46,112 @@ public class Frontend extends javax.swing.JFrame {
         } else {
             remoteController = new Factory("MySQL").createRemoteDAO();
         }
-        
-        nickname= choosePlayer();
+
+        nickname = choosePlayer();
         initComponents();
         loadGameButtons();
     }
 
     private void loadGameButtons() {
-    ArrayList<Videogame> videogamesList = remoteController.getAllVideogames();
-    jPanel2.removeAll();
-    
-    if(videogamesList == null || videogamesList.isEmpty()) {
-        // NO SE HA CARGADO NINGUN JUEGO
-        int avisoJuegosEmpty = JOptionPane.showConfirmDialog(this, "No se cargó ningún juego", "Error", JOptionPane.INFORMATION_MESSAGE);
-    }
-    
-    for (Videogame currentVideogame : videogamesList) {
-        JButton gameButton = new JButton(currentVideogame.getTitle());
-        gameButton.setName(currentVideogame.getId()+"");
+        ArrayList<Videogame> videogamesList = remoteController.getAllVideogames();
+        jPanel2.removeAll();  // Limpiar el panel antes de agregar nuevos botones
 
-        // Añadir un listener para que cuando se haga clic en el botón, se ejecute runTestGame()
-        gameButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                currentGameID = currentVideogame.getId();
-                
-                if(currentVideogame.getTitle().toLowerCase() == "pitufobros") {
-                    // Iniciar juego pitufo bros
-                } else {
-                    runTestGame();
-                }
-            }
-        });
-
-        // Añadir el botón al panel
-        jPanel2.add(gameButton);
-    }
-
-    // Actualizar el layout del panel para que los botones se acomoden correctamente
-    jPanel2.revalidate();
-    jPanel2.repaint();
-}
-
-    
-    private String choosePlayer() {
-    String nickName = null;
-
-    while (nickName == null || nickName.trim().isEmpty()) {
-        JTextField tfNickName = new JTextField();
-
-        Object[] message = {
-            "Nick Name:", tfNickName
-        };
-
-        int option = JOptionPane.showConfirmDialog(
-                this,
-                message,
-                "Select Player",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE
-        );
-
-        // Si el usuario cierra con la "X" o selecciona "Cancelar"
-        if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
-            int confirmExit = JOptionPane.showConfirmDialog(
-                    this,
-                    "El nickname es obligatorio. ¿Deseas cerrar el programa?",
-                    "Confirmar salida",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE
-            );
-
-            if (confirmExit == JOptionPane.YES_OPTION) {
-                System.exit(0); // Cerrar el programa si elige "Sí"
-            }
-            // Si selecciona "No", reinicia el ciclo para ingresar nickname
-            continue;
+        if (videogamesList == null || videogamesList.isEmpty()) {
+            JOptionPane.showConfirmDialog(this, "No se cargó ningún juego", "Error", JOptionPane.INFORMATION_MESSAGE);
+            System.out.println("no hay na");
         }
 
-        // Procesar el nickname ingresado
-        nickName = tfNickName.getText().trim();
+        // Asegurarse de que jPanel2 tiene un layout adecuado para agregar botones
+        jPanel2.setLayout(new java.awt.FlowLayout());  // Establece FlowLayout
 
-        if (nickName.isEmpty()) {
-            JOptionPane.showMessageDialog(
+        for (Videogame currentVideogame : videogamesList) {
+            JButton gameButton = new JButton(currentVideogame.getTitle());
+            gameButton.setName(currentVideogame.getId() + "");
+            gameButton.setVisible(true);
+
+            gameButton.addActionListener(evt -> {
+                currentGameID = currentVideogame.getId();
+                if ("pitufobros".equalsIgnoreCase(currentVideogame.getTitle())) {
+                    // Iniciar juego pitufo bros
+                } else {
+                    try {
+                        runTestGame();
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Frontend.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+
+            // Añadir el botón al panel
+            jPanel2.add(gameButton);
+        }
+
+        // Actualizar la interfaz para que los botones se acomoden correctamente
+        jPanel2.revalidate();
+        jPanel2.repaint();
+    }
+
+    private String choosePlayer() {
+        String nickName = null;
+
+        while (nickName == null || nickName.trim().isEmpty()) {
+            JTextField tfNickName = new JTextField();
+
+            Object[] message = {
+                "Nick Name:", tfNickName
+            };
+
+            int option = JOptionPane.showConfirmDialog(
                     this,
-                    "El nickname no puede estar vacío. Por favor, ingrésalo.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
+                    message,
+                    "Select Player",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
             );
-        } else {
-            // Comprobar si el jugador existe
-            if (remoteController.getPlayerByNickname(nickName) == null) {
+
+            // Si el usuario cierra con la "X" o selecciona "Cancelar"
+            if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
+                int confirmExit = JOptionPane.showConfirmDialog(
+                        this,
+                        "El nickname es obligatorio. ¿Deseas cerrar el programa?",
+                        "Confirmar salida",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                if (confirmExit == JOptionPane.YES_OPTION) {
+                    System.exit(0); // Cerrar el programa si elige "Sí"
+                }
+                // Si selecciona "No", reinicia el ciclo para ingresar nickname
+                continue;
+            }
+
+            // Procesar el nickname ingresado
+            nickName = tfNickName.getText().trim();
+
+            if (nickName.isEmpty()) {
                 JOptionPane.showMessageDialog(
                         this,
-                        "El jugador no existe. Por favor, ingresa un nickname válido.",
+                        "El nickname no puede estar vacío. Por favor, ingrésalo.",
                         "Error",
                         JOptionPane.ERROR_MESSAGE
                 );
-                nickName = null; // Reiniciar el ciclo
+            } else {
+                // Comprobar si el jugador existe
+                if (remoteController.getPlayerByNickname(nickName) == null) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "El jugador no existe. Por favor, ingresa un nickname válido.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                    nickName = null; // Reiniciar el ciclo
+                }
             }
         }
-    }
 
-    return nickName; // Retorna el nickname válido
-}
+        return nickName; // Retorna el nickname válido
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -273,13 +278,13 @@ public class Frontend extends javax.swing.JFrame {
         int experience = (int) elements.get(1);
         LocalDateTime last_session = (LocalDateTime) elements.get(2);
         String plrNickname = (String) elements.get(3);
-        
+
         Player jugador = remoteController.getPlayerByNickname(plrNickname);
 
         if (jugador == null) {
-            while(a){
-                nickname=choosePlayer();
-                if(nickname != null){
+            while (a) {
+                nickname = choosePlayer();
+                if (nickname != null) {
                     a = false;
                 }
             }
@@ -300,7 +305,7 @@ public class Frontend extends javax.swing.JFrame {
         remoteController.updateVideogame(juego);
     }
 
-    private void runTestGame() {
+    private void runTestGame() throws InterruptedException {
         connectedData();
         Random random = new Random();
         ArrayList<Object> elements = new ArrayList<>();
@@ -308,11 +313,16 @@ public class Frontend extends javax.swing.JFrame {
         elements.add(random.nextInt(300) + 50);
         elements.add(LocalDateTime.now());
         elements.add(nickname);
+        Thread.sleep(10000);
         disconnectedData(elements);
     }
-    
+
     private void jbTestGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbTestGameActionPerformed
-        runTestGame();
+        try {
+            runTestGame();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Frontend.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jbTestGameActionPerformed
 
     /**

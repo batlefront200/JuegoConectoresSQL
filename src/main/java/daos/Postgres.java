@@ -120,35 +120,42 @@ public class Postgres implements RemoteDAO {
             e.printStackTrace(); // Para depuración
         }
     }
+@Override
+public Videogame getGameById(int id) {
+    Videogame game = null;
+    String sql = "SELECT * FROM Videogames WHERE game_id = ?";
 
-    @Override
-    public Videogame getGameById(int id) {
-        Videogame game = null;
-        String sql = "SELECT * FROM Videogames WHERE game_id = ?";
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, id); // Establece el ID del videojuego a buscar
+        ResultSet rs = stmt.executeQuery(); // Ejecuta la consulta
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, id); // Establece el ID del videojuego a buscar
-            ResultSet rs = stmt.executeQuery(); // Ejecuta la consulta
-
-            if (rs.next()) {
-                // Si existe un videojuego con el ID dado, se crea un objeto Videogame
-                game = new Videogame(
-                        // Obtiene el game_id
-                        rs.getString("isbn"), // Obtiene el ISBN
-                        rs.getString("title"), // Obtiene el título
-                        rs.getInt("player_count"), // Obtiene la cantidad de jugadores
-                        rs.getInt("total_sessions"), // Obtiene el total de sesiones
-                        rs.getTimestamp("last_session").toLocalDateTime() // Obtiene la fecha de la última sesión
-                );
-                game.setId(rs.getInt("game_id"));
+        if (rs.next()) {
+            // Si existe un videojuego con el ID dado, se crea un objeto Videogame
+            Timestamp lastSessionTimestamp = rs.getTimestamp("last_session");
+            
+            // Verifica si el valor del Timestamp es nulo
+            LocalDateTime lastSession = null;
+            if (lastSessionTimestamp != null) {
+                lastSession = lastSessionTimestamp.toLocalDateTime();
             }
-        } catch (SQLException e) {
-            System.err.println("Error al obtener el videojuego: " + e.getMessage());
-            e.printStackTrace(); // Para depuración
+            
+            // Crear el objeto Videogame con la fecha de la última sesión (puede ser null)
+            game = new Videogame(
+                    rs.getString("isbn"), // Obtiene el ISBN
+                    rs.getString("title"), // Obtiene el título
+                    rs.getInt("player_count"), // Obtiene la cantidad de jugadores
+                    rs.getInt("total_sessions"), // Obtiene el total de sesiones
+                    lastSession // La fecha de la última sesión, puede ser null
+            );
+            game.setId(rs.getInt("game_id"));
         }
-
-        return game;
+    } catch (SQLException e) {
+        System.err.println("Error al obtener el videojuego: " + e.getMessage());
+        e.printStackTrace(); // Para depuración
     }
+
+    return game;
+}
 
     @Override
     public void deleteGameById(int id) {
