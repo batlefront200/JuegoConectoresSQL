@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Random;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
@@ -33,9 +34,7 @@ public class Frontend extends javax.swing.JFrame {
      * Creates new form Frontend
      */
     public Frontend() {
-        nickname= choosePlayer();
-        initComponents();
-        localController = new Factory("SQLite").createSQLiteDAO();
+         localController = new Factory("SQLite").createSQLiteDAO();
 
         XmlImpl config = new XmlImpl();
         String puerto = config.getConfig()[1];
@@ -45,8 +44,42 @@ public class Frontend extends javax.swing.JFrame {
             remoteController = new Factory("MySQL").createRemoteDAO();
         }
         
+        nickname= choosePlayer();
+        initComponents();
+        loadGameButtons();
     }
 
+    private void loadGameButtons() {
+    ArrayList<Videogame> videogamesList = remoteController.getAllVideogames();
+    jPanel2.removeAll();
+
+    for (Videogame currentVideogame : videogamesList) {
+        JButton gameButton = new JButton(currentVideogame.getTitle());
+        gameButton.setName(currentVideogame.getId()+"");
+
+        // Añadir un listener para que cuando se haga clic en el botón, se ejecute runTestGame()
+        gameButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                currentGameID = currentVideogame.getId();
+                
+                if(currentVideogame.getTitle().toLowerCase() == "pitufobros") {
+                    // Iniciar juego pitufo bros
+                } else {
+                    runTestGame();
+                }
+            }
+        });
+
+        // Añadir el botón al panel
+        jPanel2.add(gameButton);
+    }
+
+    // Actualizar el layout del panel para que los botones se acomoden correctamente
+    jPanel2.revalidate();
+    jPanel2.repaint();
+}
+
+    
     private String choosePlayer() {
         JTextField tfNickName = new JTextField();
 
@@ -59,6 +92,12 @@ public class Frontend extends javax.swing.JFrame {
         if (option == JOptionPane.OK_OPTION) {
             try {
                 String nickName = tfNickName.getText();
+                if(remoteController.getPlayerByNickname(nickName) != null) {
+                    return nickName;
+                } else {
+                    option = JOptionPane.CLOSED_OPTION;
+                    choosePlayer();
+                }
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(this, "El jugador no existe");
                  String nickName = "";
@@ -193,7 +232,7 @@ public class Frontend extends javax.swing.JFrame {
         int experience = (int) elements.get(1);
         LocalDateTime last_session = (LocalDateTime) elements.get(2);
         String plrNickname = (String) elements.get(3);
-
+        
         Player jugador = remoteController.getPlayerByNickname(plrNickname);
 
         if (jugador == null) {
@@ -220,7 +259,7 @@ public class Frontend extends javax.swing.JFrame {
         remoteController.updateVideogame(juego);
     }
 
-    private void jbTestGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbTestGameActionPerformed
+    private void runTestGame() {
         connectedData();
         Random random = new Random();
         ArrayList<Object> elements = new ArrayList<>();
@@ -229,6 +268,10 @@ public class Frontend extends javax.swing.JFrame {
         elements.add(LocalDateTime.now());
         elements.add(nickname);
         disconnectedData(elements);
+    }
+    
+    private void jbTestGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbTestGameActionPerformed
+        runTestGame();
     }//GEN-LAST:event_jbTestGameActionPerformed
 
     /**
