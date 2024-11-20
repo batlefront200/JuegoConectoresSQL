@@ -74,11 +74,7 @@ public class Frontend extends javax.swing.JFrame {
                 if ("pitufobros".equalsIgnoreCase(currentVideogame.getTitle())) {
                     // Iniciar juego pitufo bros
                 } else {
-                    try {
-                        runTestGame();
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(Frontend.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    runTestGame();
                 }
             });
 
@@ -305,7 +301,7 @@ public class Frontend extends javax.swing.JFrame {
         remoteController.updateVideogame(juego);
     }
 
-    private void runTestGame() throws InterruptedException {
+    private void runTestGame() {
         connectedData();
         Random random = new Random();
         ArrayList<Object> elements = new ArrayList<>();
@@ -313,16 +309,12 @@ public class Frontend extends javax.swing.JFrame {
         elements.add(random.nextInt(300) + 50);
         elements.add(LocalDateTime.now());
         elements.add(nickname);
-        Thread.sleep(10000);
+
         disconnectedData(elements);
     }
 
     private void jbTestGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbTestGameActionPerformed
-        try {
-            runTestGame();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Frontend.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        runTestGame();
     }//GEN-LAST:event_jbTestGameActionPerformed
 
     /**
