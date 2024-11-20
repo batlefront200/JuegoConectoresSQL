@@ -120,6 +120,8 @@ public class Frontend extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jbPitufoBrosActionPerformed
 
+    
+    
     /**
      * @param args the command line arguments
      */
