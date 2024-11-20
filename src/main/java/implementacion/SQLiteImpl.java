@@ -103,25 +103,6 @@ public class SQLiteImpl implements SQLiteDAO {
         }
     }
 
-    @Override
-    public boolean updatePlayerState(Player plr) {
-        try (Connection conn = DriverManager.getConnection(url)) {
-            String sql = "UPDATE EstadoJugador SET experience = ?, life_level = ?, coins = ?, session_count = ?, last_login = ? "
-                    + "WHERE player_id = ?";
-            PreparedStatement sentencia = conn.prepareStatement(sql);
-            sentencia.setInt(1, plr.getExperience());
-            sentencia.setInt(2, plr.getLife_level());
-            sentencia.setInt(3, plr.getCoins());
-            sentencia.setInt(4, plr.getSession_count());
-            sentencia.setString(5, plr.getLast_login().toString());
-
-            int rowsUpdated = sentencia.executeUpdate();
-            return rowsUpdated > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 
     @Override
     public String[] getPlayerState(int playerId) {
@@ -160,6 +141,68 @@ public class SQLiteImpl implements SQLiteDAO {
 
             int rowsDeleted = sentencia.executeUpdate();
             return rowsDeleted > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public String[] getPlayerByNickname(String nickname) {
+        String[] playerState = new String[6]; // Seis columnas relevantes
+        try (Connection conn = DriverManager.getConnection(url)) {
+            String sql = "SELECT player_id, nick_name, experience, life_level, coins, session_count, last_login "
+                    + "FROM EstadoJugador WHERE nick_name = ?";
+            PreparedStatement sentencia = conn.prepareStatement(sql);
+            sentencia.setString(1, nickname);
+            ResultSet rs = sentencia.executeQuery();
+
+            if (rs.next()) {
+                playerState[0] = String.valueOf(rs.getInt("player_id"));
+                playerState[1] = rs.getString("nick_name");
+                playerState[2] = String.valueOf(rs.getInt("experience"));
+                playerState[3] = String.valueOf(rs.getInt("life_level"));
+                playerState[4] = String.valueOf(rs.getInt("coins"));
+                playerState[5] = String.valueOf(rs.getInt("session_count"));
+                playerState[6] = rs.getString("last_login");
+            } else {
+                System.out.println("Jugador con nickname " + nickname + " no encontrado.");
+                return null;
+            }
+            return playerState;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public boolean updatePlayerState(Player jugador) {
+        try (Connection conn = DriverManager.getConnection(url)) {
+            // Comprobar si el jugador existe por su nickname
+            String checkSql = "SELECT player_id FROM EstadoJugador WHERE nick_name = ?";
+            PreparedStatement checkStmt = conn.prepareStatement(checkSql);
+            checkStmt.setString(1, jugador.getNick_name());
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (!rs.next()) {
+                System.out.println("Jugador con nickname " + jugador.getNick_name()+ " no existe.");
+                return false;
+            }
+
+            // Proceder a la actualización
+            String sql = "UPDATE EstadoJugador SET experience = ?, life_level = ?, coins = ?, session_count = ?, last_login = ? "
+                    + "WHERE player_id = ?";
+            PreparedStatement sentencia = conn.prepareStatement(sql);
+            sentencia.setInt(1, jugador.getExperience());
+            sentencia.setInt(2, jugador.getLife_level());
+            sentencia.setInt(3, jugador.getCoins());
+            sentencia.setInt(4, jugador.getSession_count());
+            sentencia.setString(5, jugador.getLast_login().toString());
+            sentencia.setInt(6, rs.getInt("player_id"));
+
+            int rowsUpdated = sentencia.executeUpdate();
+            return rowsUpdated > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

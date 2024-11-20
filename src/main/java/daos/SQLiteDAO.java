@@ -15,5 +15,8 @@ public interface SQLiteDAO {
     public boolean updatePlayerState(Player plr);
 
     public boolean savePlayerState(Player plr);
-    public boolean deletePlayerState(int playerId) ;
+
+    public boolean deletePlayerState(int playerId);
+
+    public String[] getPlayerByNickname(String nickname);
 }
