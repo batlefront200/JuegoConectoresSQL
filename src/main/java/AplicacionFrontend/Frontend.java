@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
@@ -52,7 +53,12 @@ public class Frontend extends javax.swing.JFrame {
     private void loadGameButtons() {
     ArrayList<Videogame> videogamesList = remoteController.getAllVideogames();
     jPanel2.removeAll();
-
+    
+    if(videogamesList == null || videogamesList.isEmpty()) {
+        // NO SE HA CARGADO NINGUN JUEGO
+        int avisoJuegosEmpty = JOptionPane.showConfirmDialog(this, "No se cargó ningún juego", "Error", JOptionPane.INFORMATION_MESSAGE);
+    }
+    
     for (Videogame currentVideogame : videogamesList) {
         JButton gameButton = new JButton(currentVideogame.getTitle());
         gameButton.setName(currentVideogame.getId()+"");
