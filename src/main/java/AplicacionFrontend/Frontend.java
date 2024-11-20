@@ -4,7 +4,7 @@
  */
 package AplicacionFrontend;
 
-import PitufoBros.GameEngine;
+import PitufoBros.GameThreadClass;
 
 /**
  *
@@ -115,7 +115,9 @@ public class Frontend extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbPitufoBrosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbPitufoBrosActionPerformed
-        new GameEngine().startGame();
+        GameThreadClass game = new GameThreadClass();
+        game.startGame();
+        
     }//GEN-LAST:event_jbPitufoBrosActionPerformed
 
     /**
