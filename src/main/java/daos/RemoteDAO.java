@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 public interface RemoteDAO {
     public void savePlayerProgress(Videogame game, Player plr);
-    public void updatePlayerProgress(Videogame game, Player plr);
     public ArrayList<Player> getTopPlayers(Videogame game);
     public ArrayList<Player> getGameStats(Videogame game, Player plr);
     public void deleteVideogameById(int id);
@@ -24,5 +23,7 @@ public interface RemoteDAO {
     public void deletePlayer(Player plr);
     public void deletePlayerById(int id);
     public ArrayList<Videogame> getAllVideogames();
+    
+    public Game getGameByID(int id);
     
 }

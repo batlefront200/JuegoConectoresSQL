@@ -44,22 +44,6 @@ public class Postgres implements RemoteDAO {
     }
 
     @Override
-    public void updatePlayerProgress(Videogame game, Player plr) {
-        String sql = "UPDATE Players SET experience = ?, life_level = ?, coins = ?, session_count = session_count + 1, last_login = NOW() WHERE player_id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, plr.getExperience());  // Experiencia del jugador
-            stmt.setInt(2, plr.getLife_level());  // Nivel de vida
-            stmt.setInt(3, plr.getCoins());       // Monedas
-            stmt.setInt(4, plr.getId());          // ID del jugador
-            stmt.executeUpdate();                 // Ejecuta la consulta SQL
-            System.out.println("Progreso del jugador actualizado correctamente.");
-        } catch (SQLException e) {
-            System.err.println("Error al actualizar el progreso del jugador: " + e.getMessage());
-            e.printStackTrace(); // Muestra la pila de errores para depuración
-        }
-    }
-
-    @Override
     public ArrayList<Player> getTopPlayers(Videogame game) {
         ArrayList<Player> topPlayers = new ArrayList<>();
         String sql = "SELECT p.player_id, p.nick_name, p.experience, p.life_level, p.coins, p.session_count, p.last_login "
@@ -439,5 +423,28 @@ public class Postgres implements RemoteDAO {
             e.printStackTrace();  // Para depuración
         }
     }
-    // Otros métodos se implementan de manera similar...
+
+    @Override
+    public Game getGameByID(int id) {
+        Game game = null;
+        String sql = "SELECT * FROM Games WHERE game_id = ?";
+        try (PreparedStatement sentencia = connection.prepareStatement(sql)) {
+            sentencia.setInt(1, id);
+            ResultSet resultado = sentencia.executeQuery();
+            if (resultado.next()) {
+                game = new Game(
+                        resultado.getInt("game_id"), // ID del juego
+                        resultado.getInt("player_id"), // ID del jugador
+                        resultado.getInt("experience"), // Experiencia acumulada
+                        resultado.getInt("life_level"), // Nivel de vida
+                        resultado.getInt("coins"), // Monedas acumuladas
+                        resultado.getTimestamp("session_date").toLocalDateTime() // Fecha y hora de la sesión
+                );
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener el juego por ID en PostgreSQL: " + e.getMessage());
+        }
+        return game;
+    }
+
 }

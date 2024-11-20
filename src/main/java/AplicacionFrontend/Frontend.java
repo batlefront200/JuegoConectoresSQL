@@ -4,21 +4,41 @@
  */
 package AplicacionFrontend;
 
+import static AplicacionBackend.Backend.controller;
 import PitufoBros.GameThreadClass;
+import clases.Game;
+import clases.Player;
+import clases.Videogame;
 import daos.Factory;
+import implementacion.XmlImpl;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Random;
 
 /**
  *
  * @author Vespertino
  */
 public class Frontend extends javax.swing.JFrame {
-    private daos.SQLiteDAO context;
+    private String nickname;
+    private int currentGameID;
+    private daos.SQLiteDAO localController;
+    private daos.RemoteDAO remoteController;
     /**
      * Creates new form Frontend
      */
     public Frontend() {
         initComponents();
-        context = new Factory("SQLite").createSQLiteDAO();
+        localController = new Factory("SQLite").createSQLiteDAO();
+        
+        XmlImpl config = new XmlImpl();
+        String puerto = config.getConfig()[1];
+        if(puerto.equals("5432")){
+            remoteController = new Factory("Postgres").createRemoteDAO();
+        }else{
+            remoteController = new Factory("MySQL").createRemoteDAO();
+        }       
     }
 
     /**
@@ -35,6 +55,7 @@ public class Frontend extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jbPitufoBros = new javax.swing.JButton();
+        jbTestGame = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -81,6 +102,13 @@ public class Frontend extends javax.swing.JFrame {
             }
         });
 
+        jbTestGame.setText("TEST_GAME");
+        jbTestGame.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbTestGameActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -88,13 +116,17 @@ public class Frontend extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jbPitufoBros)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jbTestGame, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jbPitufoBros, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jbTestGame, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jbPitufoBros, javax.swing.GroupLayout.DEFAULT_SIZE, 76, Short.MAX_VALUE))
                 .addContainerGap(270, Short.MAX_VALUE))
         );
 
@@ -121,6 +153,45 @@ public class Frontend extends javax.swing.JFrame {
         game.startGame();
         
     }//GEN-LAST:event_jbPitufoBrosActionPerformed
+
+    private void connectedData() {
+        Videogame juego = remoteController.getGameById(currentGameID);
+        juego.setPlayer_count(juego.getPlayer_count()+1);
+        remoteController.updateVideogame(juego);
+    }
+    
+    private void disconnectedData(ArrayList<Object> elements) {
+        int coins = (int)elements.get(0);
+        int experience = (int)elements.get(1);
+        LocalDateTime last_session = (LocalDateTime)elements.get(2);
+        String plrNickname = (String)elements.get(3);
+         
+        Player jugador = localController.getPlayerByNickname(plrNickname);
+        jugador.setCoins(jugador.getCoins()+coins);
+        jugador.setExperience(jugador.getExperience()+experience);
+        jugador.setLast_login(last_session);
+        jugador.setSession_count(jugador.getSession_count()+1);
+        
+        localController.updatePlayerState(jugador);        
+        
+        remoteController.updatePlayer(jugador);
+        
+        Videogame juego = remoteController.getGameById(currentGameID);
+        juego.setPlayer_count(juego.getPlayer_count()-1);
+        juego.setLast_session(LocalDateTime.now());
+        juego.setTotal_sessions(juego.getTotal_sessions()+1);
+        remoteController.updateVideogame(juego);
+    }
+    
+    private void jbTestGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbTestGameActionPerformed
+        Random random = new Random();
+        ArrayList<Object> elements = new ArrayList<>();
+        elements.add(random.nextInt(30) + 1);
+        elements.add(random.nextInt(300) + 50);
+        elements.add(LocalDateTime.now());
+        elements.add(nickname);
+        disconnectedData(elements);
+    }//GEN-LAST:event_jbTestGameActionPerformed
 
     
     
@@ -165,5 +236,6 @@ public class Frontend extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JButton jbPitufoBros;
+    private javax.swing.JButton jbTestGame;
     // End of variables declaration//GEN-END:variables
 }

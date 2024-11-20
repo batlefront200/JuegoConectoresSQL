@@ -41,7 +41,7 @@ public class MySQL implements RemoteDAO {
         }
     }
 
-    @Override
+    /*@Override
     public void updatePlayerProgress(Videogame game, Player plr) {
         String sql = "UPDATE Players SET experience = ?, life_level = ?, coins = ?, session_count = session_count + 1, last_login = NOW() WHERE player_id = ?";
         try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
@@ -53,8 +53,7 @@ public class MySQL implements RemoteDAO {
         } catch (SQLException e) {
             System.out.println("Error al actualizar el progreso del jugador: " + e.getMessage());
         }
-    }
-
+    }*/
     @Override
     public ArrayList<Player> getTopPlayers(Videogame game) {
         ArrayList<Player> topPlayers = new ArrayList<>();
@@ -359,6 +358,29 @@ public class MySQL implements RemoteDAO {
         } catch (SQLException e) {
             System.out.println("Error al eliminar el videojuego: " + e.getMessage());
         }
+    }
+
+    @Override
+    public Game getGameByID(int id) {
+        Game game = null;
+        String sql = "SELECT * FROM Games WHERE game_id = ?";
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            sentencia.setInt(1, id);
+            ResultSet resultado = sentencia.executeQuery();
+            if (resultado.next()) {
+                game = new Game(
+                        resultado.getInt("game_id"), // ID del juego
+                        resultado.getInt("player_id"), // ID del jugador
+                        resultado.getInt("experience"), // Experiencia acumulada
+                        resultado.getInt("life_level"), // Nivel de vida
+                        resultado.getInt("coins"), // Monedas acumuladas
+                        resultado.getTimestamp("session_date").toLocalDateTime() // Fecha y hora de la sesión
+                );
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener el juego por ID: " + e.getMessage());
+        }
+        return game;
     }
 
 }
