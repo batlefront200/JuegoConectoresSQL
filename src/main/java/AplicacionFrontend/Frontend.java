@@ -11,6 +11,8 @@ import clases.Player;
 import clases.Videogame;
 import daos.Factory;
 import implementacion.XmlImpl;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -57,6 +59,7 @@ public class Frontend extends javax.swing.JFrame {
 
             // Verificar conexión inicial
             if (remoteController.getAllVideogames() == null) {
+                jButton1ActionPerformed(null);
                 throw new Exception("No se puede conectar con la base de datos.");
             }
         } catch (Exception e) {
@@ -105,11 +108,20 @@ public class Frontend extends javax.swing.JFrame {
             JButton gameButton = new JButton(currentVideogame.getTitle());
             gameButton.setName(currentVideogame.getId() + "");
             gameButton.setVisible(true);
-
+            gameButton.setBackground(new Color(102,0,0));
+            gameButton.setForeground(Color.WHITE);
+            gameButton.setSize(64, 18);
+            gameButton.setPreferredSize(new Dimension(124, 68));
+            gameButton.setMaximumSize(new Dimension(124, 68));
+            gameButton.setMinimumSize(new Dimension(124, 68));
+            
             gameButton.addActionListener(evt -> {
                 currentGameID = currentVideogame.getId();
                 if ("pitufobros".equalsIgnoreCase(currentVideogame.getTitle())) {
                     // Iniciar juego pitufo bros
+                    int response = JOptionPane.showConfirmDialog(this, "AVISO: Este juego esta en fase pruebas. No se almacenarán los datos de la partida", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+                    if(response == JOptionPane.YES_OPTION)
+                        new GameThreadClass().startGame();
                 } else {
                     runTestGame();
                 }
@@ -205,11 +217,18 @@ public class Frontend extends javax.swing.JFrame {
         jbTestGame = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setAlwaysOnTop(true);
+        setFocusableWindowState(false);
+        setForeground(new java.awt.Color(204, 204, 204));
+        setLocation(new java.awt.Point(600, 300));
+        setMaximumSize(new java.awt.Dimension(645, 438));
+        setMinimumSize(new java.awt.Dimension(645, 438));
 
-        jPanel1.setBackground(new java.awt.Color(153, 153, 153));
+        jPanel1.setBackground(new java.awt.Color(0, 0, 0));
 
+        jLabel1.setBackground(new java.awt.Color(255, 255, 255));
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(102, 0, 153));
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Game App");
 
         jLabel2.setBackground(new java.awt.Color(204, 0, 0));
@@ -217,6 +236,7 @@ public class Frontend extends javax.swing.JFrame {
         jLabel2.setIconTextGap(0);
         jLabel2.setPreferredSize(new java.awt.Dimension(32, 32));
 
+        jButton1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jButton1.setLabel("Config");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -224,6 +244,7 @@ public class Frontend extends javax.swing.JFrame {
             }
         });
 
+        jButton2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jButton2.setText("Exit");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -236,33 +257,39 @@ public class Frontend extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(13, 13, 13)
+                .addContainerGap()
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)
+                .addGap(115, 115, 115)
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2)
-                .addGap(21, 21, 21))
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(28, 28, 28))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE)
-                        .addComponent(jButton1)
-                        .addComponent(jButton2)))
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18))
         );
 
-        jPanel2.setBackground(new java.awt.Color(153, 153, 153));
+        jPanel2.setBackground(new java.awt.Color(204, 204, 204));
 
+        jbPitufoBros.setBackground(new java.awt.Color(102, 0, 0));
         jbPitufoBros.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jbPitufoBros.setForeground(new java.awt.Color(255, 255, 255));
         jbPitufoBros.setText("Pitufo-Bros");
+        jbPitufoBros.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jbPitufoBros.setName("jbPitufoGame"); // NOI18N
         jbPitufoBros.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -270,7 +297,10 @@ public class Frontend extends javax.swing.JFrame {
             }
         });
 
+        jbTestGame.setBackground(new java.awt.Color(102, 0, 0));
+        jbTestGame.setForeground(new java.awt.Color(255, 255, 255));
         jbTestGame.setText("TEST_GAME");
+        jbTestGame.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jbTestGame.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbTestGameActionPerformed(evt);
@@ -283,19 +313,19 @@ public class Frontend extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jbPitufoBros)
+                .addComponent(jbPitufoBros, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jbTestGame, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jbTestGame, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jbTestGame, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jbPitufoBros, javax.swing.GroupLayout.DEFAULT_SIZE, 76, Short.MAX_VALUE))
-                .addContainerGap(270, Short.MAX_VALUE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jbPitufoBros, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jbTestGame, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(290, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());

@@ -112,6 +112,7 @@ public class Backend extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(0, 0, 0));
+        setLocation(new java.awt.Point(660, 305));
         setMaximumSize(new java.awt.Dimension(580, 370));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 

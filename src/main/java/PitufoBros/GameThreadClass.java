@@ -1,25 +1,32 @@
 package PitufoBros;
-import AplicacionFrontend.StartControllerDAO;
 import PitufoBros.GameEngine;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
-public class GameThreadClass extends Thread implements StartControllerDAO {
-    private ArrayList<Object> result;
+public class GameThreadClass {
+    private GameEngine gameEngine;
+    private ExecutorService executorService;
 
-    @Override
-    public void run() {
-        // Ejecuta el juego en un hilo separado
-        result = new GameEngine().startGame();
+    public GameThreadClass() {
+        executorService = Executors.newSingleThreadExecutor(); // Hilo independiente
+        gameEngine = new GameEngine();
     }
 
-    @Override
-    public ArrayList<Object> startGame() {
-        this.start(); // Llama al método start() de Thread
-        try {
-            this.join(); // Espera a que el hilo termine
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return result; // Devuelve el resultado después de ejecutar
+    // Iniciar el juego en un hilo independiente
+    public void startGame() {
+        executorService.submit(() -> {
+            gameEngine.run(); // Ejecuta el juego en un hilo paralelo
+            // Aquí podemos agregar cualquier lógica después de que el juego termine
+            // Por ejemplo, notificar a la interfaz gráfica que el juego terminó.
+            System.out.println("El juego ha terminado, pero la ventana principal sigue activa.");
+        });
+    }
+
+    // Cerrar el servicio de hilos cuando ya no se necesite
+    public void shutdown() {
+        executorService.shutdown();
     }
 }

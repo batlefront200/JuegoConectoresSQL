@@ -1,12 +1,15 @@
 
 package testpackage;
 
+import PitufoBros.GameEngine;
+import PitufoBros.GameThreadClass;
 import daos.Factory;
 import daos.RemoteDAO;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class MAIN_TEST {
     public static void main(String[] args) {
-        RemoteDAO remote = new Factory("MySQL").createRemoteDAO();
-        System.out.println("Si");
+        new GameThreadClass().startGame();
     }
 }

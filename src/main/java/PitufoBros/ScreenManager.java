@@ -5,25 +5,37 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
-public class ScreenManager {
-
+public class ScreenManager 
+{
     private GraphicsDevice device;
 
-    public ScreenManager() {
+   
+    public ScreenManager() 
+    {
         GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
         device = environment.getDefaultScreenDevice();
     }
 
-    public DisplayMode[] getCompatibleDisplayModes() {
+
+    
+    public DisplayMode[] getCompatibleDisplayModes() 
+    {
         return device.getDisplayModes();
     }
 
-    public DisplayMode findFirstCompatibleMode(DisplayMode modes[]) {
+
+   
+    public DisplayMode findFirstCompatibleMode(DisplayMode modes[])
+    {
         DisplayMode goodModes[] = device.getDisplayModes();
-        for (int i = 0; i < modes.length; i++) {
-            for (int j = 0; j < goodModes.length; j++) {
-                if (displayModesMatch(modes[i], goodModes[j])) {
+        for (int i = 0; i < modes.length; i++) 
+        {
+            for (int j = 0; j < goodModes.length; j++) 
+            {
+                if (displayModesMatch(modes[i], goodModes[j])) 
+                {
                     return modes[i];
                 }
             }
@@ -31,139 +43,167 @@ public class ScreenManager {
         return null;
     }
 
-    public DisplayMode getCurrentDisplayMode() {
+    
+    public DisplayMode getCurrentDisplayMode() 
+    {
         return device.getDisplayMode();
     }
 
-    public boolean displayModesMatch(DisplayMode mode1, DisplayMode mode2) {
-        if (mode1.getWidth() != mode2.getWidth() || mode1.getHeight() != mode2.getHeight()) {
+    public boolean displayModesMatch(DisplayMode mode1,DisplayMode mode2)
+    {
+        if (mode1.getWidth() != mode2.getWidth() || mode1.getHeight() != mode2.getHeight())
+        {
             return false;
         }
 
-        if (mode1.getBitDepth() != DisplayMode.BIT_DEPTH_MULTI
-                && mode2.getBitDepth() != DisplayMode.BIT_DEPTH_MULTI
-                && mode1.getBitDepth() != mode2.getBitDepth()) {
+        if (mode1.getBitDepth() != DisplayMode.BIT_DEPTH_MULTI &&
+            mode2.getBitDepth() != DisplayMode.BIT_DEPTH_MULTI &&
+            mode1.getBitDepth() != mode2.getBitDepth())
+        {
             return false;
         }
 
-        if (mode1.getRefreshRate()
-                != DisplayMode.REFRESH_RATE_UNKNOWN
-                && mode2.getRefreshRate()
-                != DisplayMode.REFRESH_RATE_UNKNOWN
-                && mode1.getRefreshRate() != mode2.getRefreshRate()) {
-            return false;
-        }
+        if (mode1.getRefreshRate() !=
+            DisplayMode.REFRESH_RATE_UNKNOWN &&
+            mode2.getRefreshRate() !=
+            DisplayMode.REFRESH_RATE_UNKNOWN &&
+            mode1.getRefreshRate() != mode2.getRefreshRate())
+         {
+             return false;
+         }
 
-        return true;
+         return true;
     }
 
-    public void setFullScreen(DisplayMode displayMode) {
+
+    public void setFullScreen(DisplayMode displayMode) 
+    {
         final JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setUndecorated(true); // Sin bordes
-        frame.setIgnoreRepaint(true); // Evita repintados innecesarios
-        frame.setResizable(false); // No ajustable manualmente
+        frame.setUndecorated(true);
+        frame.setIgnoreRepaint(true);
+        frame.setResizable(false);
 
-        // Configura la ventana como pantalla completa
         device.setFullScreenWindow(frame);
 
-        // Cambia el modo de pantalla si es compatible
-        if (displayMode != null && device.isDisplayChangeSupported()) {
+        if (displayMode != null && device.isDisplayChangeSupported())
+        {
             try {
                 device.setDisplayMode(displayMode);
-            } catch (IllegalArgumentException ex) {
-                System.err.println("Modo de pantalla no soportado: " + ex.getMessage());
             }
+            catch (IllegalArgumentException ex) { }
+
             frame.setSize(displayMode.getWidth(), displayMode.getHeight());
         }
-
-        // Crear la estrategia de buffer en el EDT (Event Dispatch Thread)
+        
         try {
-            EventQueue.invokeAndWait(() -> frame.createBufferStrategy(2));
-        } catch (InterruptedException | InvocationTargetException ex) {
-            System.err.println("Error al crear la estrategia de buffer: " + ex.getMessage());
+            EventQueue.invokeAndWait(new Runnable() 
+            {
+                public void run() 
+                {
+                    frame.createBufferStrategy(2);
+                }
+            });
+        }
+        catch (InterruptedException ex) 
+        {
+            // ignore
+        }
+        catch (InvocationTargetException  ex) 
+        {
+            // ignore
         }
 
-        // Solicitar foco explícitamente
-        frame.setFocusable(true);
-        frame.requestFocusInWindow();
 
-        // Listener para mantener el foco
-        frame.addWindowFocusListener(new java.awt.event.WindowFocusListener() {
-            @Override
-            public void windowGainedFocus(java.awt.event.WindowEvent e) {
-                frame.requestFocusInWindow();
-            }
-
-            @Override
-            public void windowLostFocus(java.awt.event.WindowEvent e) {
-                System.out.println("Ventana perdió el foco");
-            }
-        });
-
-        // Mostrar la ventana
-        frame.setVisible(true);
     }
 
-    public Graphics2D getGraphics() {
+    
+    public Graphics2D getGraphics() 
+    {
         Window window = device.getFullScreenWindow();
-        if (window != null) {
+        if (window != null) 
+        {
             BufferStrategy strategy = window.getBufferStrategy();
-            return (Graphics2D) strategy.getDrawGraphics();
+            return (Graphics2D)strategy.getDrawGraphics();
         }
-
+     
+           
         return null;
-
+        
     }
-
-    public void update() {
+    
+   
+    public void update() 
+    {
         Window window = device.getFullScreenWindow();
-        if (window != null) {
+        if (window != null) 
+        {
             BufferStrategy strategy = window.getBufferStrategy();
-            if (!strategy.contentsLost()) {
+            if (!strategy.contentsLost()) 
+            {
                 strategy.show();
             }
         }
-
+        
         Toolkit.getDefaultToolkit().sync();
     }
 
+
+
     public JFrame getFullScreenWindow() {
-        return (JFrame) device.getFullScreenWindow();
+        return (JFrame)device.getFullScreenWindow();
     }
 
-    public int getWidth() {
+
+   
+    public int getWidth() 
+    {
         Window window = device.getFullScreenWindow();
-        if (window != null) {
+        if (window != null) 
+        {
             return window.getWidth();
-        } else {
+        }
+        else 
+        {
             return 0;
         }
     }
 
-    public int getHeight() {
+
+    
+    public int getHeight() 
+    {
         Window window = device.getFullScreenWindow();
-        if (window != null) {
+        if (window != null) 
+        {
             return window.getHeight();
-        } else {
+        }
+        else 
+        {
             return 0;
         }
     }
 
-    public void restoreScreen() {
+
+    
+    public void restoreScreen() 
+    {
         Window window = device.getFullScreenWindow();
-        if (window != null) {
+        if (window != null) 
+        {
             window.dispose();
         }
         device.setFullScreenWindow(null);
     }
 
+
     public BufferedImage createCompatibleImage(int w, int h,
-            int transparancy) {
+        int transparancy)
+    {
         Window window = device.getFullScreenWindow();
         if (window != null) {
-            GraphicsConfiguration gc
-                    = window.getGraphicsConfiguration();
+            GraphicsConfiguration gc =
+                window.getGraphicsConfiguration();
             return gc.createCompatibleImage(w, h, transparancy);
         }
         return null;
