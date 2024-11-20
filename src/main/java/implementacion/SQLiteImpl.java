@@ -15,21 +15,27 @@ public class SQLiteImpl implements SQLiteDAO {
     private String resolution, language;
     // Driver  
     private String driver = "org.sqlite.JDBC";
-    // Cargar el driver
+    private Connection conexion;
 
-    // Establecer conexi�n
-    private String url = "jdbc:sqlite:.\\datosLocales\\datosLocales.db";		//
+    public SQLiteImpl() {
+        try {
+            // Cargar el driver explícitamente
+            Class.forName(driver);
+
+            // Ahora podemos establecer la conexión a la base de datos
+            this.conexion = DriverManager.getConnection("jdbc:sqlite:.\\src\\main\\java\\datosLocales\\datosLocales2.db");
+            System.out.println("Conectado a SQLite");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Driver JDBC de SQLite no encontrado: " + e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("No se pudo realizar la conexión en SQLite: " + e.getMessage());
+        }
+    }
 
     @Override
     public boolean saveConfig() {
-        try {
-            Class.forName(driver);
-        } catch (ClassNotFoundException e) {
-            System.out.println("Controlador JDBC de SQLite no encontrado: " + e.toString());
-        }
-        try (Connection conn = DriverManager.getConnection(url)) {
-            String sql = "INSERT INTO configuracion_jugador (sound_enabled, resolution, language) VALUES (?, ?, ?)";
-            PreparedStatement sentencia = conn.prepareStatement(sql);
+        try (PreparedStatement sentencia = conexion.prepareStatement(
+                "INSERT INTO configuracion_jugador (sound_enabled, resolution, language) VALUES (?, ?, ?)")) {
             sentencia.setBoolean(1, soundEnabled);
             sentencia.setString(2, resolution);
             sentencia.setString(3, language);
@@ -43,11 +49,8 @@ public class SQLiteImpl implements SQLiteDAO {
 
     @Override
     public boolean updateConfig(String[] datosAct) {
-        try (Connection conn = DriverManager.getConnection(url)) {
-            String sql = "UPDATE configuracion_jugador SET sound_enabled = ?, resolution = ?, language = ?";
-            PreparedStatement sentencia = conn.prepareStatement(sql);
-
-            // Assuming the `datosAct` array has the same order as the table columns
+        try (PreparedStatement sentencia = conexion.prepareStatement(
+                "UPDATE configuracion_jugador SET sound_enabled = ?, resolution = ?, language = ?")) {
             sentencia.setBoolean(1, Boolean.parseBoolean(datosAct[0]));
             sentencia.setString(2, datosAct[1]);
             sentencia.setString(3, datosAct[2]);
@@ -63,9 +66,8 @@ public class SQLiteImpl implements SQLiteDAO {
     @Override
     public String[] getConfig() {
         String[] datosConfig = new String[3];
-        try (Connection conn = DriverManager.getConnection(url)) {
-            String sql = "SELECT * FROM configuracion_jugador ORDER BY contador DESC LIMIT 1";
-            PreparedStatement sentencia = conn.prepareStatement(sql);
+        try (PreparedStatement sentencia = conexion.prepareStatement(
+                "SELECT * FROM configuracion_jugador ORDER BY contador DESC LIMIT 1")) {
             ResultSet resultado = sentencia.executeQuery();
 
             if (resultado.next()) {
@@ -84,17 +86,16 @@ public class SQLiteImpl implements SQLiteDAO {
 
     @Override
     public boolean savePlayerState(Player plr) {
-        try (Connection conn = DriverManager.getConnection(url)) {
-            String sql = "INSERT INTO EstadoJugador (player_id, nick_name, experience, life_level, coins, session_count, last_login) "
-                    + "VALUES (?, ?, ?, ?, ?, ?)";
-            PreparedStatement sentencia = conn.prepareStatement(sql);
+        try (PreparedStatement sentencia = conexion.prepareStatement(
+                "INSERT INTO EstadoJugador (player_id, nick_name, experience, life_level, coins, session_count, last_login) "
+                + "VALUES (?, ?, ?, ?, ?, ?,?)")) {
             sentencia.setInt(1, plr.getId());
-            sentencia.setString(1, plr.getNick_name());
-            sentencia.setInt(2, plr.getExperience());
-            sentencia.setInt(3, plr.getLife_level());
-            sentencia.setInt(4, plr.getCoins());
-            sentencia.setInt(5, plr.getSession_count());
-            sentencia.setString(6, plr.getLast_login().toString());
+            sentencia.setString(2, plr.getNick_name());
+            sentencia.setInt(3, plr.getExperience());
+            sentencia.setInt(4, plr.getLife_level());
+            sentencia.setInt(5, plr.getCoins());
+            sentencia.setInt(6, plr.getSession_count());
+            sentencia.setString(7, plr.getLast_login().toString());
 
             int rowsInserted = sentencia.executeUpdate();
             return rowsInserted > 0;
@@ -107,10 +108,9 @@ public class SQLiteImpl implements SQLiteDAO {
     @Override
     public String[] getPlayerState(int playerId) {
         String[] playerState = new String[6]; // Seis columnas relevantes
-        try (Connection conn = DriverManager.getConnection(url)) {
-            String sql = "SELECT nick_name, experience, life_level, coins, session_count, last_login "
-                    + "FROM EstadoJugador WHERE player_id = ?";
-            PreparedStatement sentencia = conn.prepareStatement(sql);
+        try (PreparedStatement sentencia = conexion.prepareStatement(
+                "SELECT nick_name, experience, life_level, coins, session_count, last_login "
+                + "FROM EstadoJugador WHERE player_id = ?")) {
             sentencia.setInt(1, playerId);
             ResultSet resultado = sentencia.executeQuery();
 
@@ -134,9 +134,8 @@ public class SQLiteImpl implements SQLiteDAO {
 
     @Override
     public boolean deletePlayerState(int playerId) {
-        try (Connection conn = DriverManager.getConnection(url)) {
-            String sql = "DELETE FROM EstadoJugador WHERE player_id = ?";
-            PreparedStatement sentencia = conn.prepareStatement(sql);
+        try (PreparedStatement sentencia = conexion.prepareStatement(
+                "DELETE FROM EstadoJugador WHERE player_id = ?")) {
             sentencia.setInt(1, playerId);
 
             int rowsDeleted = sentencia.executeUpdate();
@@ -149,10 +148,9 @@ public class SQLiteImpl implements SQLiteDAO {
 
     @Override
     public Player getPlayerByNickname(String nickname) {
-        try (Connection conn = DriverManager.getConnection(url)) {
-            String sql = "SELECT player_id, nick_name, experience, life_level, coins, session_count, last_login "
-                    + "FROM EstadoJugador WHERE nick_name = ?";
-            PreparedStatement sentencia = conn.prepareStatement(sql);
+        try (PreparedStatement sentencia = conexion.prepareStatement(
+                "SELECT player_id, nick_name, experience, life_level, coins, session_count, last_login "
+                + "FROM EstadoJugador WHERE nick_name = ?")) {
             sentencia.setString(1, nickname);
             ResultSet rs = sentencia.executeQuery();
 
@@ -179,22 +177,21 @@ public class SQLiteImpl implements SQLiteDAO {
 
     @Override
     public boolean updatePlayerState(Player jugador) {
-        try (Connection conn = DriverManager.getConnection(url)) {
+        try {
             // Comprobar si el jugador existe por su nickname
             String checkSql = "SELECT player_id FROM EstadoJugador WHERE nick_name = ?";
-            PreparedStatement checkStmt = conn.prepareStatement(checkSql);
+            PreparedStatement checkStmt = conexion.prepareStatement(checkSql);
             checkStmt.setString(1, jugador.getNick_name());
             ResultSet resultado = checkStmt.executeQuery();
 
             if (!resultado.next()) {
-                System.out.println("Jugador con nickname " + jugador.getNick_name() + " no existe.");
-                return false;
+                savePlayerState(jugador);
             }
 
             // Proceder a la actualización
             String sql = "UPDATE EstadoJugador SET experience = ?, life_level = ?, coins = ?, session_count = ?, last_login = ? "
                     + "WHERE player_id = ?";
-            PreparedStatement sentencia = conn.prepareStatement(sql);
+            PreparedStatement sentencia = conexion.prepareStatement(sql);
             sentencia.setInt(1, jugador.getExperience());
             sentencia.setInt(2, jugador.getLife_level());
             sentencia.setInt(3, jugador.getCoins());

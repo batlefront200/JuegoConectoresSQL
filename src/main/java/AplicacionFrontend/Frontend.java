@@ -87,31 +87,66 @@ public class Frontend extends javax.swing.JFrame {
 
     
     private String choosePlayer() {
+    String nickName = null;
+
+    while (nickName == null || nickName.trim().isEmpty()) {
         JTextField tfNickName = new JTextField();
 
         Object[] message = {
-            "Nick Name:", tfNickName,
+            "Nick Name:", tfNickName
         };
 
-        int option = JOptionPane.showConfirmDialog(this, message, "Create Player", JOptionPane.OK_CANCEL_OPTION);
+        int option = JOptionPane.showConfirmDialog(
+                this,
+                message,
+                "Select Player",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        );
 
-        if (option == JOptionPane.OK_OPTION) {
-            try {
-                String nickName = tfNickName.getText();
-                if(remoteController.getPlayerByNickname(nickName) != null) {
-                    return nickName;
-                } else {
-                    option = JOptionPane.CLOSED_OPTION;
-                    choosePlayer();
-                }
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "El jugador no existe");
-                 String nickName = "";
+        // Si el usuario cierra con la "X" o selecciona "Cancelar"
+        if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
+            int confirmExit = JOptionPane.showConfirmDialog(
+                    this,
+                    "El nickname es obligatorio. ¿Deseas cerrar el programa?",
+                    "Confirmar salida",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            if (confirmExit == JOptionPane.YES_OPTION) {
+                System.exit(0); // Cerrar el programa si elige "Sí"
             }
-
+            // Si selecciona "No", reinicia el ciclo para ingresar nickname
+            continue;
         }
-                    return nickname;
+
+        // Procesar el nickname ingresado
+        nickName = tfNickName.getText().trim();
+
+        if (nickName.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "El nickname no puede estar vacío. Por favor, ingrésalo.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } else {
+            // Comprobar si el jugador existe
+            if (remoteController.getPlayerByNickname(nickName) == null) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "El jugador no existe. Por favor, ingresa un nickname válido.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                nickName = null; // Reiniciar el ciclo
+            }
+        }
     }
+
+    return nickName; // Retorna el nickname válido
+}
 
     /**
      * This method is called from within the constructor to initialize the form.

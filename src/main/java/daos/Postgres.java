@@ -462,7 +462,9 @@ public class Postgres implements RemoteDAO {
                         resultado.getInt("life_level"),
                         resultado.getInt("coins"),
                         resultado.getInt("session_count"),
-                        resultado.getTimestamp("last_login").toLocalDateTime()
+                        resultado.getTimestamp("last_login") != null
+                        ? resultado.getTimestamp("last_login").toLocalDateTime()
+                        : null // Si es NULL, asigna null
                 );
             }
         } catch (SQLException e) {
