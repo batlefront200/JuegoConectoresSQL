@@ -19,10 +19,8 @@ public class SQLiteImpl implements SQLiteDAO {
 
     public SQLiteImpl() {
         try {
-            // Cargar el driver explícitamente
             Class.forName(driver);
 
-            // Ahora podemos establecer la conexión a la base de datos
             this.conexion = DriverManager.getConnection("jdbc:sqlite:.\\src\\main\\java\\datosLocales\\datosLocales2.db");
             System.out.println("Conectado a SQLite");
         } catch (ClassNotFoundException e) {
@@ -107,7 +105,7 @@ public class SQLiteImpl implements SQLiteDAO {
 
     @Override
     public String[] getPlayerState(int playerId) {
-        String[] playerState = new String[6]; // Seis columnas relevantes
+        String[] playerState = new String[6]; 
         try (PreparedStatement sentencia = conexion.prepareStatement(
                 "SELECT nick_name, experience, life_level, coins, session_count, last_login "
                 + "FROM EstadoJugador WHERE player_id = ?")) {
@@ -152,18 +150,18 @@ public class SQLiteImpl implements SQLiteDAO {
                 "SELECT player_id, nick_name, experience, life_level, coins, session_count, last_login "
                 + "FROM EstadoJugador WHERE nick_name = ?")) {
             sentencia.setString(1, nickname);
-            ResultSet rs = sentencia.executeQuery();
+            ResultSet resultado = sentencia.executeQuery();
 
-            if (rs.next()) {
+            if (resultado.next()) {
                 // Crear un objeto Jugador con los datos obtenidos
                 return new Player(
-                        rs.getInt("player_id"),
-                        rs.getString("nick_name"),
-                        rs.getInt("experience"),
-                        rs.getInt("life_level"),
-                        rs.getInt("coins"),
-                        rs.getInt("session_count"),
-                        LocalDateTime.parse(rs.getString("last_login"))
+                        resultado.getInt("player_id"),
+                        resultado.getString("nick_name"),
+                        resultado.getInt("experience"),
+                        resultado.getInt("life_level"),
+                        resultado.getInt("coins"),
+                        resultado.getInt("session_count"),
+                        LocalDateTime.parse(resultado.getString("last_login"))
                 );
             } else {
                 System.out.println("Jugador con nickname " + nickname + " no encontrado.");
@@ -178,7 +176,7 @@ public class SQLiteImpl implements SQLiteDAO {
     @Override
     public boolean updatePlayerState(Player jugador) {
         try {
-            // Comprobar si el jugador existe por su nickname
+       
             String checkSql = "SELECT player_id FROM EstadoJugador WHERE nick_name = ?";
             PreparedStatement checkStmt = conexion.prepareStatement(checkSql);
             checkStmt.setString(1, jugador.getNick_name());
@@ -188,7 +186,7 @@ public class SQLiteImpl implements SQLiteDAO {
                 savePlayerState(jugador);
             }
 
-            // Proceder a la actualización
+          
             String sql = "UPDATE EstadoJugador SET experience = ?, life_level = ?, coins = ?, session_count = ?, last_login = ? "
                     + "WHERE player_id = ?";
             PreparedStatement sentencia = conexion.prepareStatement(sql);

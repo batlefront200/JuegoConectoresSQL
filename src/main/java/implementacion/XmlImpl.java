@@ -32,14 +32,14 @@ public class XmlImpl implements XmlDAO {
 
     private void crearArchivoSiNoExiste() {
         try {
-            // Crear el directorio Datos si no existe
+ 
             File dir = new File("./Datos");
             if (!dir.exists()) {
                 dir.mkdirs(); // Crear el directorio si no existe
                 System.out.println("\nDirectorio 'Datos' creado.\n");
             }
 
-            // Crear el archivo XML dentro del directorio Datos
+         
             File file = new File(filePath); // Ajustar la ruta al archivo dentro del directorio
             if (!file.exists()) {
                 System.out.println("\nArchivo de jugadores no encontrado. Creando archivo...\n");

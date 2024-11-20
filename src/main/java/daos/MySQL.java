@@ -55,31 +55,35 @@ public class MySQL implements RemoteDAO {
         }
     }*/
     @Override
-    public ArrayList<Player> getTopPlayers(Videogame game) {
+    public ArrayList<Player> getTopPlayers() {
         ArrayList<Player> topPlayers = new ArrayList<>();
         String sql = "SELECT p.player_id, p.nick_name, p.experience, p.life_level, p.coins, p.session_count, p.last_login "
-                + "FROM Players p JOIN Games g ON p.player_id = g.player_id WHERE g.game_id = ? "
-                + "ORDER BY p.experience DESC LIMIT 10";
+                + "FROM Players p ORDER BY p.experience DESC LIMIT 10";
 
-        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
-            sentencia.setInt(1, game.getId());
-            ResultSet rs = sentencia.executeQuery();
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery(); // Ejecuta la consulta SQL
+
+            // Itera sobre los resultados y crea objetos Player
             while (rs.next()) {
                 Player player = new Player(
-                        rs.getInt("player_id"),
-                        rs.getString("nick_name"),
-                        rs.getInt("experience"),
-                        rs.getInt("life_level"),
-                        rs.getInt("coins"),
-                        rs.getInt("session_count"),
-                        rs.getTimestamp("last_login").toLocalDateTime()
+                        rs.getInt("player_id"), // ID del jugador
+                        rs.getString("nick_name"), // Apodo del jugador
+                        rs.getInt("experience"), // Experiencia
+                        rs.getInt("life_level"), // Nivel de vida
+                        rs.getInt("coins"), // Monedas
+                        rs.getInt("session_count"), // Cantidad de sesiones
+                        rs.getTimestamp("last_login") != null
+                        ? rs.getTimestamp("last_login").toLocalDateTime()
+                        : null // Manejar valor nulo para last_login
                 );
-                topPlayers.add(player);
+                topPlayers.add(player); // Agrega el jugador a la lista
             }
         } catch (SQLException e) {
-            System.out.println("Error al obtener los jugadores destacados: " + e.getMessage());
+            System.err.println("Error al obtener los jugadores destacados: " + e.getMessage());
+            e.printStackTrace(); // Para depuración
         }
-        return topPlayers;
+
+        return topPlayers; // Devuelve la lista de jugadores destacados
     }
 
     @Override

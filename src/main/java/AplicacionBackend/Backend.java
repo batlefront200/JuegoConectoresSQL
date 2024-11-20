@@ -6,6 +6,9 @@ import clases.Videogame;
 import daos.Factory;
 import daos.RemoteDAO;
 import implementacion.XmlImpl;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -24,18 +27,17 @@ public class Backend extends javax.swing.JFrame {
         initComponents();
         XmlImpl config = new XmlImpl();
         String puerto = config.getConfig()[1];
-        if(puerto.equals("5432")){
+        if (puerto.equals("5432")) {
             controller = new Factory("Postgres").createRemoteDAO();
-        }else{
+        } else {
             controller = new Factory("MySQL").createRemoteDAO();
         }
-        
 
         ButtonGroup buttonGroup = new ButtonGroup();
         buttonGroup.add(jtbGames);
         buttonGroup.add(jtbVideogames);
         buttonGroup.add(jtbPlayers);
-
+        jbTopPlayers.setVisible(false);
         toggleButtons(false);
 
     }
@@ -62,14 +64,17 @@ public class Backend extends javax.swing.JFrame {
         if (jtbGames.isSelected()) {
             jbUpdate.setEnabled(false);
             jbCreate.setEnabled(false);
+            jbTopPlayers.setVisible(false);
             return 1;
         } else if (jtbPlayers.isSelected()) {
             jbUpdate.setEnabled(true);
             jbCreate.setEnabled(true);
+            jbTopPlayers.setVisible(true);
             return 2;
         } else if (jtbVideogames.isSelected()) {
-                        jbUpdate.setEnabled(true);
+            jbUpdate.setEnabled(true);
             jbCreate.setEnabled(true);
+            jbTopPlayers.setVisible(false);
             return 3;
         } else {
             return 0;
@@ -99,6 +104,7 @@ public class Backend extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
+        jbTopPlayers = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jtbGames = new javax.swing.JToggleButton();
         jtbPlayers = new javax.swing.JToggleButton();
@@ -124,6 +130,15 @@ public class Backend extends javax.swing.JFrame {
         jLabel1.setText("Backend Controller");
         jLabel1.setName(""); // NOI18N
 
+        jbTopPlayers.setBackground(new java.awt.Color(102, 0, 0));
+        jbTopPlayers.setForeground(new java.awt.Color(255, 255, 255));
+        jbTopPlayers.setText("Top 10 players");
+        jbTopPlayers.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbTopPlayersActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -131,13 +146,17 @@ public class Backend extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
-                .addContainerGap(369, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 211, Short.MAX_VALUE)
+                .addComponent(jbTopPlayers)
+                .addGap(53, 53, 53))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE)
+                    .addComponent(jbTopPlayers))
                 .addContainerGap())
         );
 
@@ -447,6 +466,34 @@ public class Backend extends javax.swing.JFrame {
         updateTableContent();
     }//GEN-LAST:event_jbDestroyActionPerformed
 
+    private void jbTopPlayersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbTopPlayersActionPerformed
+        changeTableStructure(new String[]{"player_id", "nick_name", "experience", "life_level", "coins", "session_count", "last_login"}, updatePlayerData(controller.getTopPlayers()));
+        createTop10File(controller.getTopPlayers());
+        JOptionPane.showConfirmDialog(this, "Se ha creado la lista del top 10 en ./top10.txt", "Confirmacion", JOptionPane.CLOSED_OPTION);
+    }//GEN-LAST:event_jbTopPlayersActionPerformed
+    private void createTop10File(ArrayList<Player> topPlayers) {
+        String filePath = "top10.txt"; // Ruta del archivo
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String currentDate = LocalDateTime.now().format(dateFormatter);
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, false))) { // true para modo append
+            writer.write("=====================================\n");
+            writer.write("Top 10 Players - Generated on: " + currentDate + "\n");
+            writer.write("=====================================\n");
+
+            int rank = 1;
+            for (Player player : topPlayers) {
+                writer.write(String.format("%2d. %-15s %5d points\n", rank, player.getNick_name(), player.getExperience()));
+                rank++;
+            }
+
+            writer.write("\n");
+            System.out.println("Top 10 file updated successfully.");
+        } catch (IOException e) {
+            System.err.println("Error while updating the Top 10 file: " + e.getMessage());
+        }
+    }
+
     private void createGameDialog() {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
@@ -592,6 +639,7 @@ public class Backend extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton jbCreate;
     private javax.swing.JButton jbDestroy;
+    private javax.swing.JButton jbTopPlayers;
     private javax.swing.JButton jbUpdate;
     private javax.swing.JButton jbVisualize;
     private javax.swing.JToggleButton jtbGames;

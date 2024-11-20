@@ -2,9 +2,9 @@
 <configuracion>
     <servidor>
         <host>127.0.0.1</host>
-        <port>3306</port>
-        <user>root</user>
-        <pass/>
+        <port>5432</port>
+        <user>postgres</user>
+        <pass>admin</pass>
     </servidor>
     <usuario>
         <nick_name>Kevin</nick_name>
