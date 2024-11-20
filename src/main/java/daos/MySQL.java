@@ -29,13 +29,13 @@ public class MySQL implements RemoteDAO {
     @Override
     public void savePlayerProgress(Videogame game, Player plr) {
         String sql = "INSERT INTO Games (game_id, player_id, experience, life_level, coins, session_date) VALUES (?, ?, ?, ?, ?, NOW())";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, game.getId());
-            stmt.setInt(2, plr.getId());
-            stmt.setInt(3, plr.getExperience());
-            stmt.setInt(4, plr.getLife_level());
-            stmt.setInt(5, plr.getCoins());
-            stmt.executeUpdate();
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            sentencia.setInt(1, game.getId());
+            sentencia.setInt(2, plr.getId());
+            sentencia.setInt(3, plr.getExperience());
+            sentencia.setInt(4, plr.getLife_level());
+            sentencia.setInt(5, plr.getCoins());
+            sentencia.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error al guardar el progreso del jugador: " + e.getMessage());
         }
@@ -44,12 +44,12 @@ public class MySQL implements RemoteDAO {
     @Override
     public void updatePlayerProgress(Videogame game, Player plr) {
         String sql = "UPDATE Players SET experience = ?, life_level = ?, coins = ?, session_count = session_count + 1, last_login = NOW() WHERE player_id = ?";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, plr.getExperience());
-            stmt.setInt(2, plr.getLife_level());
-            stmt.setInt(3, plr.getCoins());
-            stmt.setInt(4, plr.getId());
-            stmt.executeUpdate();
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            sentencia.setInt(1, plr.getExperience());
+            sentencia.setInt(2, plr.getLife_level());
+            sentencia.setInt(3, plr.getCoins());
+            sentencia.setInt(4, plr.getId());
+            sentencia.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error al actualizar el progreso del jugador: " + e.getMessage());
         }
@@ -62,9 +62,9 @@ public class MySQL implements RemoteDAO {
                 + "FROM Players p JOIN Games g ON p.player_id = g.player_id WHERE g.game_id = ? "
                 + "ORDER BY p.experience DESC LIMIT 10";
 
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, game.getId());
-            ResultSet rs = stmt.executeQuery();
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            sentencia.setInt(1, game.getId());
+            ResultSet rs = sentencia.executeQuery();
             while (rs.next()) {
                 Player player = new Player(
                         rs.getInt("player_id"),
@@ -89,10 +89,10 @@ public class MySQL implements RemoteDAO {
         String sql = "SELECT g.experience, g.life_level, g.coins, g.session_date "
                 + "FROM Games g WHERE g.game_id = ? AND g.player_id = ? ORDER BY g.session_date DESC";
 
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, game.getId());
-            stmt.setInt(2, plr.getId());
-            ResultSet rs = stmt.executeQuery();
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            sentencia.setInt(1, game.getId());
+            sentencia.setInt(2, plr.getId());
+            ResultSet rs = sentencia.executeQuery();
             while (rs.next()) {
                 Player playerStats = new Player();
                 playerStats.setExperience(rs.getInt("experience"));
@@ -111,12 +111,12 @@ public class MySQL implements RemoteDAO {
     @Override
     public void saveGame(Videogame game) {
         String sql = "INSERT INTO Videogames (isbn, title, player_count, total_sessions, last_session) VALUES (?, ?, ?, ?, NOW())";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setString(1, game.getIsbn());
-            stmt.setString(2, game.getTitle());
-            stmt.setInt(3, game.getPlayer_count());
-            stmt.setInt(4, game.getTotal_sessions());
-            stmt.executeUpdate();
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            sentencia.setString(1, game.getIsbn());
+            sentencia.setString(2, game.getTitle());
+            sentencia.setInt(3, game.getPlayer_count());
+            sentencia.setInt(4, game.getTotal_sessions());
+            sentencia.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error al guardar el videojuego: " + e.getMessage());
         }
@@ -126,9 +126,9 @@ public class MySQL implements RemoteDAO {
     public Videogame getGameById(int id) {
         Videogame game = null;
         String sql = "SELECT * FROM Videogames WHERE game_id = ?";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            sentencia.setInt(1, id);
+            ResultSet rs = sentencia.executeQuery();
             if (rs.next()) {
                 game = new Videogame(
                         rs.getInt("game_id"),
@@ -148,9 +148,9 @@ public class MySQL implements RemoteDAO {
     @Override
     public void deleteGameById(int id) {
         String sql = "DELETE FROM Videogames WHERE game_id = ?";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            sentencia.setInt(1, id);
+            sentencia.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error al eliminar el videojuego: " + e.getMessage());
         }
@@ -160,18 +160,18 @@ public class MySQL implements RemoteDAO {
     public Player getPlayerById(int id) {
         Player player = null;
         String sql = "SELECT * FROM Players WHERE player_id = ?";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            sentencia.setInt(1, id);
+            ResultSet resultado = sentencia.executeQuery();
+            if (resultado.next()) {
                 player = new Player(
-                        rs.getInt("player_id"),
-                        rs.getString("nick_name"),
-                        rs.getInt("experience"),
-                        rs.getInt("life_level"),
-                        rs.getInt("coins"),
-                        rs.getInt("session_count"),
-                        rs.getTimestamp("last_login").toLocalDateTime()
+                        resultado.getInt("player_id"),
+                        resultado.getString("nick_name"),
+                        resultado.getInt("experience"),
+                        resultado.getInt("life_level"),
+                        resultado.getInt("coins"),
+                        resultado.getInt("session_count"),
+                        resultado.getTimestamp("last_login").toLocalDateTime()
                 );
             }
         } catch (SQLException e) {
@@ -183,15 +183,15 @@ public class MySQL implements RemoteDAO {
     @Override
     public void updatePlayer(Player plr) {
         String sql = "UPDATE Players SET nick_name = ?, experience = ?, life_level = ?, coins = ?, session_count = ?, last_login = ? WHERE player_id = ?";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setString(1, plr.getNick_name());
-            stmt.setInt(2, plr.getExperience());
-            stmt.setInt(3, plr.getLife_level());
-            stmt.setInt(4, plr.getCoins());
-            stmt.setInt(5, plr.getSession_count());
-            stmt.setTimestamp(6, java.sql.Timestamp.valueOf(plr.getLast_login()));
-            stmt.setInt(7, plr.getId());
-            stmt.executeUpdate();
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            sentencia.setString(1, plr.getNick_name());
+            sentencia.setInt(2, plr.getExperience());
+            sentencia.setInt(3, plr.getLife_level());
+            sentencia.setInt(4, plr.getCoins());
+            sentencia.setInt(5, plr.getSession_count());
+            sentencia.setTimestamp(6, java.sql.Timestamp.valueOf(plr.getLast_login()));
+            sentencia.setInt(7, plr.getId());
+            sentencia.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error al actualizar el jugador: " + e.getMessage());
         }
@@ -200,9 +200,9 @@ public class MySQL implements RemoteDAO {
     @Override
     public void deletePlayer(Player plr) {
         String sql = "DELETE FROM Players WHERE player_id = ?";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, plr.getId());
-            stmt.executeUpdate();
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            sentencia.setInt(1, plr.getId());
+            sentencia.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error al eliminar el jugador: " + e.getMessage());
         }
@@ -213,18 +213,18 @@ public class MySQL implements RemoteDAO {
         ArrayList<Player> players = new ArrayList<>();
         String sql = "SELECT * FROM Players";
 
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            ResultSet rs = stmt.executeQuery();
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            ResultSet resultado = sentencia.executeQuery();
 
-            while (rs.next()) {
+            while (resultado.next()) {
                 Player player = new Player(
-                        rs.getInt("player_id"), // Assuming the column name is "player_id"
-                        rs.getString("nick_name"), // Assuming the column name is "nick_name"
-                        rs.getInt("experience"), // Assuming the column name is "experience"
-                        rs.getInt("life_level"), // Assuming the column name is "life_level"
-                        rs.getInt("coins"), // Assuming the column name is "coins"
-                        rs.getInt("session_count"), // Assuming the column name is "session_count"
-                        rs.getTimestamp("last_login").toLocalDateTime() // Assuming the column name is "last_login"
+                        resultado.getInt("player_id"), // Assuming the column name is "player_id"
+                        resultado.getString("nick_name"), // Assuming the column name is "nick_name"
+                        resultado.getInt("experience"), // Assuming the column name is "experience"
+                        resultado.getInt("life_level"), // Assuming the column name is "life_level"
+                        resultado.getInt("coins"), // Assuming the column name is "coins"
+                        resultado.getInt("session_count"), // Assuming the column name is "session_count"
+                        resultado.getTimestamp("last_login").toLocalDateTime() // Assuming the column name is "last_login"
                 );
                 players.add(player);
             }
@@ -238,14 +238,14 @@ public class MySQL implements RemoteDAO {
     @Override
     public void updateGame(Game game) {
         String sql = "UPDATE Games SET player_id = ?, experience = ?, life_level = ?, coins = ?, session_date = ? WHERE game_id = ?";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, game.getPlayer_id());
-            stmt.setInt(2, game.getExperience());
-            stmt.setInt(3, game.getLife_level());
-            stmt.setInt(4, game.getCoins());
-            stmt.setTimestamp(5, java.sql.Timestamp.valueOf(game.getSession_date()));
-            stmt.setInt(6, game.getGame_id());
-            stmt.executeUpdate();
+        try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            sentencia.setInt(1, game.getPlayer_id());
+            sentencia.setInt(2, game.getExperience());
+            sentencia.setInt(3, game.getLife_level());
+            sentencia.setInt(4, game.getCoins());
+            sentencia.setTimestamp(5, java.sql.Timestamp.valueOf(game.getSession_date()));
+            sentencia.setInt(6, game.getGame_id());
+            sentencia.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error al actualizar el juego: " + e.getMessage());
         }
@@ -257,18 +257,18 @@ public class MySQL implements RemoteDAO {
         String sql = "SELECT * FROM Games";
 
         try (PreparedStatement sentencia = conexion.prepareStatement(sql)) {
-            ResultSet rs = sentencia.executeQuery();
+            ResultSet resultado = sentencia.executeQuery();
 
-            while (rs.next()) {
+            while (resultado.next()) {
                 Game game = new Game(
-                        rs.getInt("session_id"),
-                        rs.getInt("player_id"), // Suponiendo que la columna es "player_id"
-                        rs.getInt("experience"), // Suponiendo que la columna es "experience"
-                        rs.getInt("life_level"), // Suponiendo que la columna es "life_level"
-                        rs.getInt("coins"), // Suponiendo que la columna es "coins"
-                        rs.getTimestamp("session_date").toLocalDateTime() // Suponiendo que la columna es "session_date"
+                        resultado.getInt("session_id"),
+                        resultado.getInt("player_id"), // Suponiendo que la columna es "player_id"
+                        resultado.getInt("experience"), // Suponiendo que la columna es "experience"
+                        resultado.getInt("life_level"), // Suponiendo que la columna es "life_level"
+                        resultado.getInt("coins"), // Suponiendo que la columna es "coins"
+                        resultado.getTimestamp("session_date").toLocalDateTime() // Suponiendo que la columna es "session_date"
                 );
-                game.setGame_id(rs.getInt("game_id"));      // Suponiendo que la columna es "game_id"
+                game.setGame_id(resultado.getInt("game_id"));      // Suponiendo que la columna es "game_id"
                 games.add(game);
             }
         } catch (SQLException e) {

@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 
 public class SQLiteImpl implements SQLiteDAO {
 
@@ -65,12 +66,12 @@ public class SQLiteImpl implements SQLiteDAO {
         try (Connection conn = DriverManager.getConnection(url)) {
             String sql = "SELECT * FROM configuracion_jugador ORDER BY contador DESC LIMIT 1";
             PreparedStatement sentencia = conn.prepareStatement(sql);
-            ResultSet rs = sentencia.executeQuery();
+            ResultSet resultado = sentencia.executeQuery();
 
-            if (rs.next()) {
-                datosConfig[0] = rs.getString("sound_Enabled").toString();
-                datosConfig[1] = rs.getString("resolution");
-                datosConfig[2] = rs.getString("language");
+            if (resultado.next()) {
+                datosConfig[0] = resultado.getString("sound_Enabled").toString();
+                datosConfig[1] = resultado.getString("resolution");
+                datosConfig[2] = resultado.getString("language");
             } else {
                 System.out.println("No hay datos de configuracion");
             }
@@ -103,7 +104,6 @@ public class SQLiteImpl implements SQLiteDAO {
         }
     }
 
-
     @Override
     public String[] getPlayerState(int playerId) {
         String[] playerState = new String[6]; // Seis columnas relevantes
@@ -112,15 +112,15 @@ public class SQLiteImpl implements SQLiteDAO {
                     + "FROM EstadoJugador WHERE player_id = ?";
             PreparedStatement sentencia = conn.prepareStatement(sql);
             sentencia.setInt(1, playerId);
-            ResultSet rs = sentencia.executeQuery();
+            ResultSet resultado = sentencia.executeQuery();
 
-            if (rs.next()) {
-                playerState[0] = rs.getString("nick_name");
-                playerState[1] = String.valueOf(rs.getInt("experience"));
-                playerState[2] = String.valueOf(rs.getInt("life_level"));
-                playerState[3] = String.valueOf(rs.getInt("coins"));
-                playerState[4] = String.valueOf(rs.getInt("session_count"));
-                playerState[5] = rs.getString("last_login");
+            if (resultado.next()) {
+                playerState[0] = resultado.getString("nick_name");
+                playerState[1] = String.valueOf(resultado.getInt("experience"));
+                playerState[2] = String.valueOf(resultado.getInt("life_level"));
+                playerState[3] = String.valueOf(resultado.getInt("coins"));
+                playerState[4] = String.valueOf(resultado.getInt("session_count"));
+                playerState[5] = resultado.getString("last_login");
             } else {
                 System.out.println("Jugador con ID " + playerId + " no encontrado.");
                 return null;
@@ -148,8 +148,7 @@ public class SQLiteImpl implements SQLiteDAO {
     }
 
     @Override
-    public String[] getPlayerByNickname(String nickname) {
-        String[] playerState = new String[6]; // Seis columnas relevantes
+    public Player getPlayerByNickname(String nickname) {
         try (Connection conn = DriverManager.getConnection(url)) {
             String sql = "SELECT player_id, nick_name, experience, life_level, coins, session_count, last_login "
                     + "FROM EstadoJugador WHERE nick_name = ?";
@@ -158,18 +157,20 @@ public class SQLiteImpl implements SQLiteDAO {
             ResultSet rs = sentencia.executeQuery();
 
             if (rs.next()) {
-                playerState[0] = String.valueOf(rs.getInt("player_id"));
-                playerState[1] = rs.getString("nick_name");
-                playerState[2] = String.valueOf(rs.getInt("experience"));
-                playerState[3] = String.valueOf(rs.getInt("life_level"));
-                playerState[4] = String.valueOf(rs.getInt("coins"));
-                playerState[5] = String.valueOf(rs.getInt("session_count"));
-                playerState[6] = rs.getString("last_login");
+                // Crear un objeto Jugador con los datos obtenidos
+                return new Player(
+                        rs.getInt("player_id"),
+                        rs.getString("nick_name"),
+                        rs.getInt("experience"),
+                        rs.getInt("life_level"),
+                        rs.getInt("coins"),
+                        rs.getInt("session_count"),
+                        LocalDateTime.parse(rs.getString("last_login"))
+                );
             } else {
                 System.out.println("Jugador con nickname " + nickname + " no encontrado.");
                 return null;
             }
-            return playerState;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -183,10 +184,10 @@ public class SQLiteImpl implements SQLiteDAO {
             String checkSql = "SELECT player_id FROM EstadoJugador WHERE nick_name = ?";
             PreparedStatement checkStmt = conn.prepareStatement(checkSql);
             checkStmt.setString(1, jugador.getNick_name());
-            ResultSet rs = checkStmt.executeQuery();
+            ResultSet resultado = checkStmt.executeQuery();
 
-            if (!rs.next()) {
-                System.out.println("Jugador con nickname " + jugador.getNick_name()+ " no existe.");
+            if (!resultado.next()) {
+                System.out.println("Jugador con nickname " + jugador.getNick_name() + " no existe.");
                 return false;
             }
 
@@ -199,7 +200,7 @@ public class SQLiteImpl implements SQLiteDAO {
             sentencia.setInt(3, jugador.getCoins());
             sentencia.setInt(4, jugador.getSession_count());
             sentencia.setString(5, jugador.getLast_login().toString());
-            sentencia.setInt(6, rs.getInt("player_id"));
+            sentencia.setInt(6, resultado.getInt("player_id"));
 
             int rowsUpdated = sentencia.executeUpdate();
             return rowsUpdated > 0;
