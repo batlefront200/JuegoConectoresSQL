@@ -9,7 +9,8 @@ import PitufoBros.GameThreadClass;
 import clases.Game;
 import clases.Player;
 import clases.Videogame;
-import daos.Factory;
+import daos.SQLiteDAO;
+import implementacion.Factory;
 import implementacion.XmlImpl;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -38,13 +39,14 @@ public class Frontend extends javax.swing.JFrame {
     private daos.RemoteDAO remoteController;
     private XmlImpl config;
     private ConfigXML datosConfig;
+    private String[] datosLocales;
 
     /**
      * Creates new form Frontend
      */
     public Frontend() {
         localController = new Factory("SQLite").createSQLiteDAO();
-
+        datosLocales = localController.getConfig();
         config = new XmlImpl();
         String[] datos = config.getConfig();
         datosConfig = new ConfigXML(datos[0], Integer.parseInt(datos[1]), datos[2], datos[3], datos[4]);
@@ -108,20 +110,21 @@ public class Frontend extends javax.swing.JFrame {
             JButton gameButton = new JButton(currentVideogame.getTitle());
             gameButton.setName(currentVideogame.getId() + "");
             gameButton.setVisible(true);
-            gameButton.setBackground(new Color(102,0,0));
+            gameButton.setBackground(new Color(102, 0, 0));
             gameButton.setForeground(Color.WHITE);
             gameButton.setSize(64, 18);
             gameButton.setPreferredSize(new Dimension(124, 68));
             gameButton.setMaximumSize(new Dimension(124, 68));
             gameButton.setMinimumSize(new Dimension(124, 68));
-            
+
             gameButton.addActionListener(evt -> {
                 currentGameID = currentVideogame.getId();
                 if ("pitufobros".equalsIgnoreCase(currentVideogame.getTitle())) {
                     // Iniciar juego pitufo bros
                     int response = JOptionPane.showConfirmDialog(this, "AVISO: Este juego esta en fase pruebas. No se almacenarán los datos de la partida", "Aviso", JOptionPane.INFORMATION_MESSAGE);
-                    if(response == JOptionPane.YES_OPTION)
+                    if (response == JOptionPane.YES_OPTION) {
                         new GameThreadClass().startGame();
+                    }
                 } else {
                     runTestGame();
                 }
@@ -273,7 +276,7 @@ public class Frontend extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jLabel1))
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -417,12 +420,18 @@ public class Frontend extends javax.swing.JFrame {
         JTextField portField = new JTextField(String.valueOf(datosConfig.getPort()));
         JTextField userField = new JTextField(datosConfig.getUser());
         JTextField passwordField = new JPasswordField(datosConfig.getPass());
+        JTextField resolutionField = new JTextField(datosLocales[1]);
+        JTextField languageField = new JTextField(datosLocales[2]);
+        JTextField soundEnabledField = new JTextField(datosLocales[0]);
 
         Object[] message = {
             "Host:", hostField,
             "Port:", portField,
             "User:", userField,
-            "Password:", passwordField,};
+            "Password:", passwordField,
+            "Resolution", resolutionField,
+            "Language", languageField,
+            "Sound Enabled", soundEnabledField};
 
         int option = JOptionPane.showConfirmDialog(
                 this,
@@ -442,7 +451,12 @@ public class Frontend extends javax.swing.JFrame {
 
                 // Guardar en el archivo XML
                 config.saveConfig(datosConfig);
-
+                String[] dato = new String[3];
+                dato[1] = soundEnabledField.getText();
+                dato[0] = resolutionField.getText();
+                dato[2] = languageField.getText();
+              
+                localController.updateConfig(dato);
                 // Reiniciar la conexión con la base de datos
                 if (datosConfig.getPort() == 5432) {
                     remoteController = new Factory("Postgres").createRemoteDAO();

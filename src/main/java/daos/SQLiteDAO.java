@@ -4,7 +4,7 @@ import clases.Player;
 
 public interface SQLiteDAO {
 
-    public boolean saveConfig();
+    public boolean saveConfig(String[] datos);
 
     public boolean updateConfig(String[] datosAct);
 

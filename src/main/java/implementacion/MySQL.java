@@ -1,8 +1,9 @@
-package daos;
+package implementacion;
 
 import clases.Game;
 import clases.Player;
 import clases.Videogame;
+import daos.RemoteDAO;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;

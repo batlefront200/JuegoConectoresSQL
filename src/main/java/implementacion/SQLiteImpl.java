@@ -31,12 +31,12 @@ public class SQLiteImpl implements SQLiteDAO {
     }
 
     @Override
-    public boolean saveConfig() {
+    public boolean saveConfig(String [] datos) {
         try (PreparedStatement sentencia = conexion.prepareStatement(
                 "INSERT INTO configuracion_jugador (sound_enabled, resolution, language) VALUES (?, ?, ?)")) {
-            sentencia.setBoolean(1, soundEnabled);
-            sentencia.setString(2, resolution);
-            sentencia.setString(3, language);
+            sentencia.setBoolean(1, Boolean.parseBoolean(datos[0]));
+            sentencia.setString(2, datos[1]);
+            sentencia.setString(3, datos[2]);
             int rowsInserted = sentencia.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
@@ -65,7 +65,7 @@ public class SQLiteImpl implements SQLiteDAO {
     public String[] getConfig() {
         String[] datosConfig = new String[3];
         try (PreparedStatement sentencia = conexion.prepareStatement(
-                "SELECT * FROM configuracion_jugador ORDER BY contador DESC LIMIT 1")) {
+                "SELECT * FROM configuracion_jugador DESC LIMIT 1")) { 
             ResultSet resultado = sentencia.executeQuery();
 
             if (resultado.next()) {

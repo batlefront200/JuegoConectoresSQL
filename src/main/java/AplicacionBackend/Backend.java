@@ -3,7 +3,7 @@ package AplicacionBackend;
 import clases.Game;
 import clases.Player;
 import clases.Videogame;
-import daos.Factory;
+import implementacion.Factory;
 import daos.RemoteDAO;
 import implementacion.XmlImpl;
 import java.io.BufferedWriter;
@@ -15,22 +15,60 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import javax.swing.ButtonGroup;
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+import pojo.ConfigXML;
 
 public class Backend extends javax.swing.JFrame {
 
     private TableDataHandler currentStrategy;
     public static RemoteDAO controller;
+    private XmlImpl config;
+    private ConfigXML datosConfig;
 
     public Backend() {
         initComponents();
-        XmlImpl config = new XmlImpl();
-        String puerto = config.getConfig()[1];
-        if (puerto.equals("5432")) {
-            controller = new Factory("Postgres").createRemoteDAO();
-        } else {
-            controller = new Factory("MySQL").createRemoteDAO();
+        config = new XmlImpl();
+        String[] datos = config.getConfig();
+        datosConfig = new ConfigXML(datos[0], Integer.parseInt(datos[1]), datos[2], datos[3], datos[4]);
+
+        try {
+            // Intentar conectarse con la configuración inicial
+            if (datos[1].equals("5432")) {
+                controller = new Factory("Postgres").createRemoteDAO();
+            } else {
+                controller = new Factory("MySQL").createRemoteDAO();
+            }
+
+            // Verificar conexión inicial
+            if (controller.getAllVideogames() == null) {
+                config();
+                throw new Exception("No se puede conectar con la base de datos.");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "No se pudo establecer conexión con la base de datos.\nPor favor, verifica la configuración.",
+                    "Error de Conexión",
+                    JOptionPane.ERROR_MESSAGE);
+
+            // Mostrar cuadro de diálogo para editar la configuración
+            config(); // Llamar al método que abre el cuadro de configuración
+
+            // Intentar nuevamente la conexión después de la configuración
+            try {
+                if (datosConfig.getPort() == 5432) {
+                    controller = new Factory("Postgres").createRemoteDAO();
+                } else {
+                    controller = new Factory("MySQL").createRemoteDAO();
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this,
+                        "Error crítico: No se pudo establecer conexión después de configurar.\nEl programa se cerrará.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                System.exit(0);
+            }
         }
 
         ButtonGroup buttonGroup = new ButtonGroup();
@@ -40,6 +78,52 @@ public class Backend extends javax.swing.JFrame {
         jbTopPlayers.setVisible(false);
         toggleButtons(false);
 
+    }
+
+    private void config() {
+        // Crear campos para los datos de configuración
+        JTextField hostField = new JTextField(datosConfig.getHost());
+        JTextField portField = new JTextField(String.valueOf(datosConfig.getPort()));
+        JTextField userField = new JTextField(datosConfig.getUser());
+        JTextField passwordField = new JPasswordField(datosConfig.getPass());
+
+        Object[] message = {
+            "Host:", hostField,
+            "Port:", portField,
+            "User:", userField,
+            "Password:", passwordField,};
+
+        int option = JOptionPane.showConfirmDialog(
+                this,
+                message,
+                "Configuración de la Base de Datos",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (option == JOptionPane.OK_OPTION) {
+            try {
+                // Actualizar los datos de configuración
+                datosConfig.setHost(hostField.getText());
+                datosConfig.setPort(Integer.parseInt(portField.getText()));
+                datosConfig.setUser(userField.getText());
+                datosConfig.setPass(passwordField.getText());
+                System.out.println("Entra aqui: "+datosConfig.getHost());
+                // Guardar en el archivo XML
+                config.saveConfig(datosConfig);
+
+                // Reiniciar la conexión con la base de datos
+                if (datosConfig.getPort() == 5432) {
+                    controller = new Factory("Postgres").createRemoteDAO();
+                } else {
+                    controller = new Factory("MySQL").createRemoteDAO();
+                }
+
+                JOptionPane.showMessageDialog(this, "Configuración actualizada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al actualizar la configuración: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     public void updateTableContent() {
@@ -355,64 +439,64 @@ public class Backend extends javax.swing.JFrame {
 
         switch (getToggledButton()) {
             case 2: // Jugadores
-                
+
                 try {
-                String playerId = (String) mainTable.getValueAt(selectedRow, 0); // player_id
-                String nickName = (String) mainTable.getValueAt(selectedRow, 1); // nick_name
-                int experience = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 2)); // experience
-                int lifeLevel = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 3)); // life_level
-                int coins = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 4)); // coins
-                int sessionCount = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 5)); // session_count
-                String lastLogin = (String) mainTable.getValueAt(selectedRow, 6); // last_login
+                    String playerId = (String) mainTable.getValueAt(selectedRow, 0); // player_id
+                    String nickName = (String) mainTable.getValueAt(selectedRow, 1); // nick_name
+                    int experience = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 2)); // experience
+                    int lifeLevel = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 3)); // life_level
+                    int coins = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 4)); // coins
+                    int sessionCount = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 5)); // session_count
+                    String lastLogin = (String) mainTable.getValueAt(selectedRow, 6); // last_login
 
-                Player updatedPlayer = new Player(Integer.parseInt(playerId), nickName, experience, lifeLevel, coins, sessionCount);
+                    Player updatedPlayer = new Player(Integer.parseInt(playerId), nickName, experience, lifeLevel, coins, sessionCount);
 
-                controller.updatePlayer(updatedPlayer);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error actualizando jugador");
-            }
+                    controller.updatePlayer(updatedPlayer);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "Error actualizando jugador");
+                }
 
-            break;
+                break;
 
             case 1: // Progreso
-                
-                try {
-                String session_id = (String) mainTable.getValueAt(selectedRow, 0);
-                String gameId = (String) mainTable.getValueAt(selectedRow, 1);
-                String playerIdGame = (String) mainTable.getValueAt(selectedRow, 2);
-                int gameExperience = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 3));
-                int gameLifeLevel = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 4));
-                int gameCoins = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 5));
-                String sessionDate = (String) mainTable.getValueAt(selectedRow, 6);
 
-                controller.updateGame(new Game(Integer.parseInt(session_id), Integer.parseInt(gameId), Integer.parseInt(playerIdGame), gameExperience, gameLifeLevel, gameCoins, LocalDateTime.parse(sessionDate)));
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error actualizando juego");
-            }
-            break;
+                try {
+                    String session_id = (String) mainTable.getValueAt(selectedRow, 0);
+                    String gameId = (String) mainTable.getValueAt(selectedRow, 1);
+                    String playerIdGame = (String) mainTable.getValueAt(selectedRow, 2);
+                    int gameExperience = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 3));
+                    int gameLifeLevel = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 4));
+                    int gameCoins = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 5));
+                    String sessionDate = (String) mainTable.getValueAt(selectedRow, 6);
+
+                    controller.updateGame(new Game(Integer.parseInt(session_id), Integer.parseInt(gameId), Integer.parseInt(playerIdGame), gameExperience, gameLifeLevel, gameCoins, LocalDateTime.parse(sessionDate)));
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "Error actualizando juego");
+                }
+                break;
 
             case 3: // Videojuegos
                 try {
-                int gameIdVG = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 0)); // game_id
-                String isbn = (String) mainTable.getValueAt(selectedRow, 1); // isbn
-                String title = (String) mainTable.getValueAt(selectedRow, 2); // title
-                int playerCount = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 3)); // player_count
-                int totalSessions = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 4)); // total_sessions
-                String lastSession = (String) mainTable.getValueAt(selectedRow, 5); // last_session
+                    int gameIdVG = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 0)); // game_id
+                    String isbn = (String) mainTable.getValueAt(selectedRow, 1); // isbn
+                    String title = (String) mainTable.getValueAt(selectedRow, 2); // title
+                    int playerCount = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 3)); // player_count
+                    int totalSessions = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 4)); // total_sessions
+                    String lastSession = (String) mainTable.getValueAt(selectedRow, 5); // last_session
 
-                // Convertir last_session de String a LocalDateTime (ajusta el formato según sea necesario)
-                LocalDateTime lastSessionDateTime = null;
-                if (lastSession != null && !lastSession.isEmpty()) {
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); // Ajusta el patrón según el formato de tu String
-                    lastSessionDateTime = LocalDateTime.parse(lastSession, formatter);
+                    // Convertir last_session de String a LocalDateTime (ajusta el formato según sea necesario)
+                    LocalDateTime lastSessionDateTime = null;
+                    if (lastSession != null && !lastSession.isEmpty()) {
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); // Ajusta el patrón según el formato de tu String
+                        lastSessionDateTime = LocalDateTime.parse(lastSession, formatter);
+                    }
+
+                    // Actualizar el videojuego en la base de datos
+                    controller.updateVideogame(new Videogame(gameIdVG, isbn, title, playerCount, totalSessions, lastSessionDateTime));
+                } catch (Exception e) {
+                    e.printStackTrace(); // Mostrar la excepción para depuración
                 }
-
-                // Actualizar el videojuego en la base de datos
-                controller.updateVideogame(new Videogame(gameIdVG, isbn, title, playerCount, totalSessions, lastSessionDateTime));
-            } catch (Exception e) {
-                e.printStackTrace(); // Mostrar la excepción para depuración
-            }
-            break;
+                break;
 
             default:
                 JOptionPane.showMessageDialog(this, "No ha seleccionado una tabla válida");
@@ -433,30 +517,30 @@ public class Backend extends javax.swing.JFrame {
         switch (getToggledButton()) {
             case 2: // Jugadores
                 try {
-                String playerId = (String) mainTable.getValueAt(selectedRow, 0); // player_id
-                controller.deletePlayerById(Integer.parseInt(playerId));
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error eliminando jugador");
-            }
-            break;
+                    String playerId = (String) mainTable.getValueAt(selectedRow, 0); // player_id
+                    controller.deletePlayerById(Integer.parseInt(playerId));
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "Error eliminando jugador");
+                }
+                break;
 
             case 1: // Juegos
                 try {
-                String sessionId = (String) mainTable.getValueAt(selectedRow, 0); // session_id
-                controller.deleteGameById(Integer.parseInt(sessionId));
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error eliminando juego");
-            }
-            break;
+                    String sessionId = (String) mainTable.getValueAt(selectedRow, 0); // session_id
+                    controller.deleteGameById(Integer.parseInt(sessionId));
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "Error eliminando juego");
+                }
+                break;
 
             case 3: // Videojuegos
                 try {
-                String gameId = (String) mainTable.getValueAt(selectedRow, 0); // game_id
-                controller.deleteVideogameById(Integer.parseInt(gameId));
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error eliminando videojuego");
-            }
-            break;
+                    String gameId = (String) mainTable.getValueAt(selectedRow, 0); // game_id
+                    controller.deleteVideogameById(Integer.parseInt(gameId));
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "Error eliminando videojuego");
+                }
+                break;
 
             default:
                 JOptionPane.showMessageDialog(this, "No ha seleccionado una tabla válida");

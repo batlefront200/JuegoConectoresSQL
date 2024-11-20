@@ -1,5 +1,9 @@
 
-package daos;
+package implementacion;
+
+import daos.RemoteDAO;
+import daos.SQLiteDAO;
+import daos.XmlDAO;
 
 public class Factory {
 
