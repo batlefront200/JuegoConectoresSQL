@@ -1,8 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <host>localhost</host>
-    <port>5432</port>
-    <user>postgres</user>
-    <pass>admin</pass>
-    <nick_name>GameMaster</nick_name>
-</configuration>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuracion>
+    <servidor>
+        <host>127.0.0.1</host>
+        <port>5432</port>
+        <user>postgres</user>
+        <pass>admin</pass>
+    </servidor>
+    <usuario>
+        <nick_name>Kevin</nick_name>
+    </usuario>
+</configuracion>

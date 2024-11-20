@@ -20,7 +20,9 @@ import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import pojo.ConfigXML;
 
 /**
  *
@@ -28,29 +30,64 @@ import javax.swing.JTextField;
  */
 public class Frontend extends javax.swing.JFrame {
 
-    private String nickname = "kevin";
+    private String nickname;
     private int currentGameID;
     private daos.SQLiteDAO localController;
     private daos.RemoteDAO remoteController;
+    private XmlImpl config;
+    private ConfigXML datosConfig;
 
     /**
      * Creates new form Frontend
      */
     public Frontend() {
-        localController = new Factory("SQLite").createSQLiteDAO();
+    localController = new Factory("SQLite").createSQLiteDAO();
 
-        XmlImpl config = new XmlImpl();
-        String puerto = config.getConfig()[1];
-        if (puerto.equals("5432")) {
+    config = new XmlImpl();
+    String[] datos = config.getConfig();
+    datosConfig = new ConfigXML(datos[0], Integer.parseInt(datos[1]), datos[2], datos[3], datos[4]);
+
+    try {
+        // Intentar conectarse con la configuración inicial
+        if (datos[1].equals("5432")) {
             remoteController = new Factory("Postgres").createRemoteDAO();
         } else {
             remoteController = new Factory("MySQL").createRemoteDAO();
         }
 
-        nickname = choosePlayer();
-        initComponents();
-        loadGameButtons();
+        // Verificar conexión inicial
+        if (remoteController.getAllVideogames() == null) {
+            throw new Exception("No se puede conectar con la base de datos.");
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, 
+            "No se pudo establecer conexión con la base de datos.\nPor favor, verifica la configuración.", 
+            "Error de Conexión", 
+            JOptionPane.ERROR_MESSAGE);
+
+        // Mostrar cuadro de diálogo para editar la configuración
+        jButton1ActionPerformed(null); // Llamar al método que abre el cuadro de configuración
+
+        // Intentar nuevamente la conexión después de la configuración
+        try {
+            if (datosConfig.getPort() == 5432) {
+                remoteController = new Factory("Postgres").createRemoteDAO();
+            } else {
+                remoteController = new Factory("MySQL").createRemoteDAO();
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, 
+                "Error crítico: No se pudo establecer conexión después de configurar.\nEl programa se cerrará.", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+            System.exit(0);
+        }
     }
+
+    nickname = choosePlayer();
+    initComponents();
+    loadGameButtons();
+}
 
     private void loadGameButtons() {
         ArrayList<Videogame> videogamesList = remoteController.getAllVideogames();
@@ -161,6 +198,7 @@ public class Frontend extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jbPitufoBros = new javax.swing.JButton();
         jbTestGame = new javax.swing.JButton();
@@ -178,6 +216,13 @@ public class Frontend extends javax.swing.JFrame {
         jLabel2.setIconTextGap(0);
         jLabel2.setPreferredSize(new java.awt.Dimension(32, 32));
 
+        jButton1.setLabel("Config");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -186,8 +231,10 @@ public class Frontend extends javax.swing.JFrame {
                 .addGap(13, 13, 13)
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1)
+                .addGap(102, 102, 102))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -195,7 +242,9 @@ public class Frontend extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE)
+                        .addComponent(jButton1)))
                 .addContainerGap())
         );
 
@@ -299,6 +348,9 @@ public class Frontend extends javax.swing.JFrame {
         juego.setLast_session(LocalDateTime.now());
         juego.setTotal_sessions(juego.getTotal_sessions() + 1);
         remoteController.updateVideogame(juego);
+        datosConfig.setNick_name(nickname);
+        config.saveConfig(datosConfig); // se guarda en el xml el ultimo jugador 
+
     }
 
     private void runTestGame() {
@@ -316,6 +368,60 @@ public class Frontend extends javax.swing.JFrame {
     private void jbTestGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbTestGameActionPerformed
         runTestGame();
     }//GEN-LAST:event_jbTestGameActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+
+        // Crear campos para los datos de configuración
+        JTextField hostField = new JTextField(datosConfig.getHost());
+        JTextField portField = new JTextField(String.valueOf(datosConfig.getPort()));
+        JTextField userField = new JTextField(datosConfig.getUser());
+        JTextField passwordField = new JPasswordField(datosConfig.getPass());
+
+        Object[] message = {
+            "Host:", hostField,
+            "Port:", portField,
+            "User:", userField,
+            "Password:", passwordField,};
+
+        int option = JOptionPane.showConfirmDialog(
+                this,
+                message,
+                "Configuración de la Base de Datos",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (option == JOptionPane.OK_OPTION) {
+            try {
+                // Actualizar los datos de configuración
+                datosConfig.setHost(hostField.getText());
+                datosConfig.setPort(Integer.parseInt(portField.getText()));
+                datosConfig.setUser(userField.getText());
+                datosConfig.setPass(passwordField.getText());
+
+                // Guardar en el archivo XML
+                config.saveConfig(datosConfig);
+
+                // Reiniciar la conexión con la base de datos
+                if (datosConfig.getPort() == 5432) {
+                    remoteController = new Factory("Postgres").createRemoteDAO();
+                } else {
+                    remoteController = new Factory("MySQL").createRemoteDAO();
+                }
+
+                // Volver a pedir el nickname
+                nickname = choosePlayer();
+
+                // Recargar los botones de los juegos
+                loadGameButtons();
+
+                JOptionPane.showMessageDialog(this, "Configuración actualizada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error al actualizar la configuración: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -353,6 +459,7 @@ public class Frontend extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;

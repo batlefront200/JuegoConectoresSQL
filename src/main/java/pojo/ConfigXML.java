@@ -12,15 +12,16 @@ import java.io.Serializable;
  */
 public class ConfigXML implements Serializable {
 
-    private int host, port;
+    private int  port;
     private String user;
     private String pass;
     private String nick_name;
+    private String host;
 
     public ConfigXML() {
     }
 
-    public ConfigXML(int host, int port, String user, String pass, String nick_name) {
+    public ConfigXML(String host, int port, String user, String pass, String nick_name) {
         this.host = host;
         this.nick_name = nick_name;
         this.pass = pass;
@@ -31,14 +32,14 @@ public class ConfigXML implements Serializable {
     /**
      * @return the host
      */
-    public int getHost() {
+    public String getHost() {
         return host;
     }
 
     /**
      * @param host the host to set
      */
-    public void setHost(int host) {
+    public void setHost(String host) {
         this.host = host;
     }
 

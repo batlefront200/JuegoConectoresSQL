@@ -20,6 +20,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import pojo.ConfigXML;
 
 /**
  *
@@ -68,7 +69,7 @@ public class XmlImpl implements XmlDAO {
     }
 
     @Override
-    public void saveConfig() {
+    public void saveConfig(ConfigXML datos) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -81,24 +82,24 @@ public class XmlImpl implements XmlDAO {
 
             //Elemetos del servidor
             Element host = document.createElement("host");
-            host.appendChild(document.createTextNode("127.0.0.1"));
+            host.appendChild(document.createTextNode(datos.getHost()+""));
             serverElement.appendChild(host);
 
             Element port = document.createElement("port");
-            port.appendChild(document.createTextNode("3306"));
+            port.appendChild(document.createTextNode(datos.getPort()+""));
             serverElement.appendChild(port);
 
             Element user = document.createElement("user");
-            user.appendChild(document.createTextNode("root"));
+            user.appendChild(document.createTextNode(datos.getUser()));
             serverElement.appendChild(user);
 
             Element pass = document.createElement("pass");
-            pass.appendChild(document.createTextNode("root"));
+            pass.appendChild(document.createTextNode(datos.getPass()));
             serverElement.appendChild(pass);
 
             //Elementos del usuario
             Element nick_name = document.createElement("nick_name");
-            nick_name.appendChild(document.createTextNode("Kimura"));
+            nick_name.appendChild(document.createTextNode(datos.getNick_name()));
             userElement.appendChild(nick_name);
 
             raiz.appendChild(serverElement);
@@ -131,7 +132,7 @@ public class XmlImpl implements XmlDAO {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(file);
-            NodeList nodeList = document.getElementsByTagName("configuration");
+            NodeList nodeList = document.getElementsByTagName("configuracion");
 
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node node = nodeList.item(i);

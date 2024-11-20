@@ -1,6 +1,7 @@
 package daos;
 
 import clases.Player;
+import pojo.ConfigXML;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -12,7 +13,7 @@ import clases.Player;
  */
 public interface XmlDAO {
 
-    public void saveConfig();
+    public void saveConfig(ConfigXML datos);
 
     public String[] getConfig();
 
