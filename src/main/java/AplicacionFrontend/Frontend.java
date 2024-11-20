@@ -21,7 +21,7 @@ import java.util.Random;
  * @author Vespertino
  */
 public class Frontend extends javax.swing.JFrame {
-    private String nickname;
+    private String nickname = "kevin";
     private int currentGameID;
     private daos.SQLiteDAO localController;
     private daos.RemoteDAO remoteController;
@@ -184,6 +184,7 @@ public class Frontend extends javax.swing.JFrame {
     }
     
     private void jbTestGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbTestGameActionPerformed
+        connectedData();
         Random random = new Random();
         ArrayList<Object> elements = new ArrayList<>();
         elements.add(random.nextInt(30) + 1);
