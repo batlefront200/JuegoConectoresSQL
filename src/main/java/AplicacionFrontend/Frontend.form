@@ -111,6 +111,8 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jbPitufoBros" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="jbSimulateGame" min="-2" pref="145" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
@@ -119,7 +121,10 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jbPitufoBros" min="-2" pref="76" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Component id="jbSimulateGame" max="32767" attributes="0"/>
+                      <Component id="jbPitufoBros" pref="76" max="32767" attributes="0"/>
+                  </Group>
                   <EmptySpace pref="270" max="32767" attributes="0"/>
               </Group>
           </Group>
@@ -136,6 +141,14 @@
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbPitufoBrosActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="jbSimulateGame">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="SIMULAR_JUEGO"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbSimulateGameActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>

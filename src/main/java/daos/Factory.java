@@ -9,16 +9,9 @@ public class Factory {
         this.dbType = dbType;
     }
 
-    /*public LocalDAO createLocalDAO() {
-        if (dbType.equals("SQLite")) {
-            return new SQLiteDAO("localDB.db");
-        } else if (dbType.equals("JSON")) {
-            return new JSONDAO();
-        } else if (dbType.equals("XML")) {
-            return new XMLDAO();
-        }
-        throw new IllegalArgumentException("Unsupported Local DAO type");
-    }*/
+    public SQLiteDAO createSQLiteDAO() {
+      return new implementacion.SQLiteImpl();
+    }
 
     public RemoteDAO createRemoteDAO() {
         if (dbType.equals("MySQL")) {

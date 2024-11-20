@@ -5,18 +5,20 @@
 package AplicacionFrontend;
 
 import PitufoBros.GameThreadClass;
+import daos.Factory;
 
 /**
  *
  * @author Vespertino
  */
 public class Frontend extends javax.swing.JFrame {
-
+    private daos.SQLiteDAO context;
     /**
      * Creates new form Frontend
      */
     public Frontend() {
         initComponents();
+        context = new Factory("SQLite").createSQLiteDAO();
     }
 
     /**
