@@ -447,4 +447,28 @@ public class Postgres implements RemoteDAO {
         return game;
     }
 
+    @Override
+    public Player getPlayerByNickname(String nickname) {
+        Player player = null;
+        String sql = "SELECT * FROM Players WHERE nick_name = ?";
+        try (PreparedStatement sentencia = connection.prepareStatement(sql)) {
+            sentencia.setString(1, nickname);
+            ResultSet resultado = sentencia.executeQuery();
+            if (resultado.next()) {
+                player = new Player(
+                        resultado.getInt("player_id"),
+                        resultado.getString("nick_name"),
+                        resultado.getInt("experience"),
+                        resultado.getInt("life_level"),
+                        resultado.getInt("coins"),
+                        resultado.getInt("session_count"),
+                        resultado.getTimestamp("last_login").toLocalDateTime()
+                );
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener el jugador: " + e.getMessage());
+        }
+        return player;
+    }
+
 }

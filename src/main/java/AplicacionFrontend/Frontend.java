@@ -15,30 +15,57 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Random;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 
 /**
  *
  * @author Vespertino
  */
 public class Frontend extends javax.swing.JFrame {
+
     private String nickname = "kevin";
     private int currentGameID;
     private daos.SQLiteDAO localController;
     private daos.RemoteDAO remoteController;
+
     /**
      * Creates new form Frontend
      */
     public Frontend() {
+        nickname= choosePlayer();
         initComponents();
         localController = new Factory("SQLite").createSQLiteDAO();
-        
+
         XmlImpl config = new XmlImpl();
         String puerto = config.getConfig()[1];
-        if(puerto.equals("5432")){
+        if (puerto.equals("5432")) {
             remoteController = new Factory("Postgres").createRemoteDAO();
-        }else{
+        } else {
             remoteController = new Factory("MySQL").createRemoteDAO();
-        }       
+        }
+        
+    }
+
+    private String choosePlayer() {
+        JTextField tfNickName = new JTextField();
+
+        Object[] message = {
+            "Nick Name:", tfNickName,
+        };
+
+        int option = JOptionPane.showConfirmDialog(this, message, "Create Player", JOptionPane.OK_CANCEL_OPTION);
+
+        if (option == JOptionPane.OK_OPTION) {
+            try {
+                String nickName = tfNickName.getText();
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "El jugador no existe");
+                 String nickName = "";
+            }
+
+        }
+                    return nickname;
     }
 
     /**
@@ -151,38 +178,48 @@ public class Frontend extends javax.swing.JFrame {
     private void jbPitufoBrosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbPitufoBrosActionPerformed
         GameThreadClass game = new GameThreadClass();
         game.startGame();
-        
+
     }//GEN-LAST:event_jbPitufoBrosActionPerformed
 
     private void connectedData() {
         Videogame juego = remoteController.getGameById(currentGameID);
-        juego.setPlayer_count(juego.getPlayer_count()+1);
+        juego.setPlayer_count(juego.getPlayer_count() + 1);
         remoteController.updateVideogame(juego);
     }
-    
+
     private void disconnectedData(ArrayList<Object> elements) {
-        int coins = (int)elements.get(0);
-        int experience = (int)elements.get(1);
-        LocalDateTime last_session = (LocalDateTime)elements.get(2);
-        String plrNickname = (String)elements.get(3);
-         
-        Player jugador = localController.getPlayerByNickname(plrNickname);
-        jugador.setCoins(jugador.getCoins()+coins);
-        jugador.setExperience(jugador.getExperience()+experience);
+        boolean a = true;
+        int coins = (int) elements.get(0);
+        int experience = (int) elements.get(1);
+        LocalDateTime last_session = (LocalDateTime) elements.get(2);
+        String plrNickname = (String) elements.get(3);
+
+        Player jugador = remoteController.getPlayerByNickname(plrNickname);
+
+        if (jugador == null) {
+            while(a){
+                nickname=choosePlayer();
+                if(nickname != null){
+                    a = false;
+                }
+            }
+        }
+
+        jugador.setCoins(jugador.getCoins() + coins);
+        jugador.setExperience(jugador.getExperience() + experience);
         jugador.setLast_login(last_session);
-        jugador.setSession_count(jugador.getSession_count()+1);
-        
-        localController.updatePlayerState(jugador);        
-        
+        jugador.setSession_count(jugador.getSession_count() + 1);
+
         remoteController.updatePlayer(jugador);
-        
+        localController.updatePlayerState(jugador);
+
         Videogame juego = remoteController.getGameById(currentGameID);
-        juego.setPlayer_count(juego.getPlayer_count()-1);
+        juego.setPlayer_count(juego.getPlayer_count() - 1);
         juego.setLast_session(LocalDateTime.now());
-        juego.setTotal_sessions(juego.getTotal_sessions()+1);
+        juego.setTotal_sessions(juego.getTotal_sessions() + 1);
         remoteController.updateVideogame(juego);
     }
-    
+
     private void jbTestGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbTestGameActionPerformed
         connectedData();
         Random random = new Random();
@@ -194,8 +231,6 @@ public class Frontend extends javax.swing.JFrame {
         disconnectedData(elements);
     }//GEN-LAST:event_jbTestGameActionPerformed
 
-    
-    
     /**
      * @param args the command line arguments
      */

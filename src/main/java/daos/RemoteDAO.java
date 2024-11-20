@@ -5,6 +5,7 @@ import clases.*;
 import java.util.ArrayList;
 
 public interface RemoteDAO {
+    public Player getPlayerByNickname(String nickname);
     public void savePlayerProgress(Videogame game, Player plr);
     public ArrayList<Player> getTopPlayers(Videogame game);
     public ArrayList<Player> getGameStats(Videogame game, Player plr);
