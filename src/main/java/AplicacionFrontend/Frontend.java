@@ -403,6 +403,8 @@ public class Frontend extends javax.swing.JFrame {
         elements.add(LocalDateTime.now());
         elements.add(nickname);
 
+        JOptionPane.showConfirmDialog(this, "Has ganado "+elements.get(0)+" monedas y "+elements.get(1)+" experiencia", "Resultados",JOptionPane.DEFAULT_OPTION);
+        
         disconnectedData(elements);
     }
 
