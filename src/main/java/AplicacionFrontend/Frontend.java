@@ -70,10 +70,8 @@ public class Frontend extends javax.swing.JFrame {
                     "Error de Conexión",
                     JOptionPane.ERROR_MESSAGE);
 
-            // Mostrar cuadro de diálogo para editar la configuración
             jButton1ActionPerformed(null); // Llamar al método que abre el cuadro de configuración
 
-            // Intentar nuevamente la conexión después de la configuración
             try {
                 if (datosConfig.getPort() == 5432) {
                     remoteController = new Factory("Postgres").createRemoteDAO();
@@ -96,15 +94,14 @@ public class Frontend extends javax.swing.JFrame {
 
     private void loadGameButtons() {
         ArrayList<Videogame> videogamesList = remoteController.getAllVideogames();
-        jPanel2.removeAll();  // Limpiar el panel antes de agregar nuevos botones
+        jPanel2.removeAll();
 
         if (videogamesList == null || videogamesList.isEmpty()) {
             JOptionPane.showConfirmDialog(this, "No se cargó ningún juego", "Error", JOptionPane.INFORMATION_MESSAGE);
             System.out.println("no hay na");
         }
 
-        // Asegurarse de que jPanel2 tiene un layout adecuado para agregar botones
-        jPanel2.setLayout(new java.awt.FlowLayout());  // Establece FlowLayout
+        jPanel2.setLayout(new java.awt.FlowLayout());
 
         for (Videogame currentVideogame : videogamesList) {
             JButton gameButton = new JButton(currentVideogame.getTitle());
@@ -120,7 +117,7 @@ public class Frontend extends javax.swing.JFrame {
             gameButton.addActionListener(evt -> {
                 currentGameID = currentVideogame.getId();
                 if ("pitufobros".equalsIgnoreCase(currentVideogame.getTitle())) {
-                    // Iniciar juego pitufo bros
+
                     int response = JOptionPane.showConfirmDialog(this, "AVISO: Este juego esta en fase pruebas. No se almacenarán los datos de la partida", "Aviso", JOptionPane.INFORMATION_MESSAGE);
                     if (response == JOptionPane.YES_OPTION) {
                         new GameThreadClass().startGame();
@@ -130,11 +127,10 @@ public class Frontend extends javax.swing.JFrame {
                 }
             });
 
-            // Añadir el botón al panel
             jPanel2.add(gameButton);
         }
 
-        // Actualizar la interfaz para que los botones se acomoden correctamente
+        // Actualizar la interfaz para que los botones se pongan correctamente
         jPanel2.revalidate();
         jPanel2.repaint();
     }
@@ -168,9 +164,9 @@ public class Frontend extends javax.swing.JFrame {
                 );
 
                 if (confirmExit == JOptionPane.YES_OPTION) {
-                    System.exit(0); // Cerrar el programa si elige "Sí"
+                    System.exit(0);
                 }
-                // Si selecciona "No", reinicia el ciclo para ingresar nickname
+
                 continue;
             }
 
@@ -198,7 +194,7 @@ public class Frontend extends javax.swing.JFrame {
             }
         }
 
-        return nickName; // Retorna el nickname válido
+        return nickName;
     }
 
     /**
@@ -394,6 +390,7 @@ public class Frontend extends javax.swing.JFrame {
         remoteController.updateVideogame(juego);
         datosConfig.setNick_name(nickname);
         config.saveConfig(datosConfig); // se guarda en el xml el ultimo jugador 
+        remoteController.savePlayerProgress(juego, jugador);
 
     }
 
@@ -455,7 +452,7 @@ public class Frontend extends javax.swing.JFrame {
                 dato[1] = soundEnabledField.getText();
                 dato[0] = resolutionField.getText();
                 dato[2] = languageField.getText();
-              
+
                 localController.updateConfig(dato);
                 // Reiniciar la conexión con la base de datos
                 if (datosConfig.getPort() == 5432) {

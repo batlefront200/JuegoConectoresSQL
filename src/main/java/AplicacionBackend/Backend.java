@@ -52,7 +52,7 @@ public class Backend extends javax.swing.JFrame {
                     "Error de Conexión",
                     JOptionPane.ERROR_MESSAGE);
 
-            // Mostrar cuadro de diálogo para editar la configuración
+           
             config(); // Llamar al método que abre el cuadro de configuración
 
             // Intentar nuevamente la conexión después de la configuración
@@ -420,9 +420,9 @@ public class Backend extends javax.swing.JFrame {
                 int sessionCount = Integer.parseInt(tfSessionCount.getText());
 
                 Player newPlayer = new Player(nickName, experience, lifeLevel, coins, sessionCount, null);
-                controller.savePlayer(newPlayer); // Asegúrate de que este método esté en tu DAO
+                controller.savePlayer(newPlayer); 
 
-                updateTableContent(); // Actualiza la tabla con el nuevo jugador
+                updateTableContent(); 
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(this, "Por favor ingrese valores válidos.");
             }
@@ -441,13 +441,13 @@ public class Backend extends javax.swing.JFrame {
             case 2: // Jugadores
 
                 try {
-                    String playerId = (String) mainTable.getValueAt(selectedRow, 0); // player_id
-                    String nickName = (String) mainTable.getValueAt(selectedRow, 1); // nick_name
-                    int experience = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 2)); // experience
-                    int lifeLevel = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 3)); // life_level
-                    int coins = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 4)); // coins
-                    int sessionCount = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 5)); // session_count
-                    String lastLogin = (String) mainTable.getValueAt(selectedRow, 6); // last_login
+                    String playerId = (String) mainTable.getValueAt(selectedRow, 0); 
+                    String nickName = (String) mainTable.getValueAt(selectedRow, 1); 
+                    int experience = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 2)); 
+                    int lifeLevel = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 3)); 
+                    int coins = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 4)); 
+                    int sessionCount = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 5));
+                    String lastLogin = (String) mainTable.getValueAt(selectedRow, 6); 
 
                     Player updatedPlayer = new Player(Integer.parseInt(playerId), nickName, experience, lifeLevel, coins, sessionCount);
 
@@ -484,17 +484,17 @@ public class Backend extends javax.swing.JFrame {
                     int totalSessions = Integer.parseInt((String) mainTable.getValueAt(selectedRow, 4)); // total_sessions
                     String lastSession = (String) mainTable.getValueAt(selectedRow, 5); // last_session
 
-                    // Convertir last_session de String a LocalDateTime (ajusta el formato según sea necesario)
+                    
                     LocalDateTime lastSessionDateTime = null;
                     if (lastSession != null && !lastSession.isEmpty()) {
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); // Ajusta el patrón según el formato de tu String
                         lastSessionDateTime = LocalDateTime.parse(lastSession, formatter);
                     }
 
-                    // Actualizar el videojuego en la base de datos
+                    
                     controller.updateVideogame(new Videogame(gameIdVG, isbn, title, playerCount, totalSessions, lastSessionDateTime));
                 } catch (Exception e) {
-                    e.printStackTrace(); // Mostrar la excepción para depuración
+                    e.printStackTrace();
                 }
                 break;
 
@@ -556,11 +556,11 @@ public class Backend extends javax.swing.JFrame {
         JOptionPane.showConfirmDialog(this, "Se ha creado la lista del top 10 en ./top10.txt", "Confirmacion", JOptionPane.CLOSED_OPTION);
     }//GEN-LAST:event_jbTopPlayersActionPerformed
     private void createTop10File(ArrayList<Player> topPlayers) {
-        String filePath = "top10.txt"; // Ruta del archivo
+        String filePath = "top10.txt"; 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String currentDate = LocalDateTime.now().format(dateFormatter);
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, false))) { // true para modo append
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, false))) { 
             writer.write("=====================================\n");
             writer.write("Top 10 Players - Generated on: " + currentDate + "\n");
             writer.write("=====================================\n");
@@ -644,8 +644,8 @@ public class Backend extends javax.swing.JFrame {
 
         @Override
         public String[][] getData(RemoteDAO controller) {
-            // Implementar la obtención de datos para videojuegos, si es necesario
-            return new String[][]{{}};  // Ejemplo de datos vacíos
+            
+            return new String[][]{{}};  
         }
     }
 
